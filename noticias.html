@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Noticias Laboratorios Mar</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f0f0f0; }
+    #ticker-wrapper {
+      background: #1a1a2e; width: 100%; height: 44px;
+      display: flex; align-items: center; overflow: hidden;
+    }
+    #ticker-label {
+      background: #e63946; color: #fff; font-size: 11px;
+      font-weight: 700; letter-spacing: 0.6px; padding: 0 16px;
+      height: 100%; display: flex; align-items: center;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    #ticker-track {
+      flex: 1; overflow: hidden; height: 100%;
+      position: relative; cursor: pointer;
+    }
+    #ticker-inner {
+      display: flex; align-items: center; height: 100%;
+      white-space: nowrap; position: absolute; left: 0; top: 0;
+    }
+    .ticker-item {
+      color: #e8e8e8; font-size: 13px; padding: 0 36px;
+      text-decoration: none; transition: color 0.2s;
+    }
+    .ticker-item:hover { color: #f4a261; }
+    .ticker-sep { color: #e63946; font-size: 15px; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+
+<div id="ticker-wrapper">
+  <div id="ticker-label">NOTIMAR</div>
+  <div id="ticker-track">
+    <div id="ticker-inner">
+      <span style="color:#aaa;padding:0 20px;font-size:13px;">Cargando...</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const RSS_URLS = [
+  "https://feeds.bbci.co.uk/mundo/rss.xml",
+  "https://www.lanacion.com.ar/arc/outboundfeeds/rss/",
+  "https://www.clarin.com/rss/lo-ultimo/",
+  "https://www.america-retail.com/feed/",
+  "https://www.lavanguardia.com/rss/salud.xml",
+  "https://www.20minutos.es/rss/salud/",
+];
+
+let animFrame = null;
+let paused = false;
+let pos = 0;
+let halfWidth = 0;
+const speed = 0.6;
+
+async function loadNews() {
+  let allItems = [];
+  for (const url of RSS_URLS) {
+    try {
+      const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`);
+      const data = await res.json();
+      if (data.status === "ok" && data.items?.length) allItems = allItems.concat(data.items);
+    } catch(e) {}
+  }
+  if (!allItems.length) return;
+  renderTicker(allItems.sort(() => Math.random() - 0.5));
+}
+
+function renderTicker(items) {
+  cancelAnimationFrame(animFrame);
+  animFrame = null;
+  const inner = document.getElementById("ticker-inner");
+  inner.innerHTML = "";
+  inner.style.transform = "translateX(0px)";
+  pos = 0;
+
+  [items, items].forEach(set => {
+    set.forEach(item => {
+      const a = document.createElement("a");
+      a.className = "ticker-item";
+      a.textContent = item.title;
+      a.href = item.link;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      inner.appendChild(a);
+      const sep = document.createElement("span");
+      sep.className = "ticker-sep";
+      sep.textContent = "▶";
+      inner.appendChild(sep);
+    });
+  });
+
+  requestAnimationFrame(() => {
+    halfWidth = inner.scrollWidth / 2;
+    startAnimation();
+  });
+}
+
+function startAnimation() {
+  if (animFrame) return;
+  function step() {
+    if (!paused) {
+      pos += speed;
+      if (pos >= halfWidth) pos = 0;
+      document.getElementById("ticker-inner").style.transform = `translateX(${-pos}px)`;
+    }
+    animFrame = requestAnimationFrame(step);
+  }
+  animFrame = requestAnimationFrame(step);
+}
+
+const track = document.getElementById("ticker-track");
+track.addEventListener("mouseenter", () => { paused = true; });
+track.addEventListener("mouseleave", () => { paused = false; });
+
+loadNews();
+setInterval(loadNews, 10 * 60 * 1000);
+</script>
+
+</body>
+</html>
