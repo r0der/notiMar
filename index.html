@@ -42,20 +42,6 @@
       overflow: hidden;
     }
 
-    #ticker-label {
-      background: #e63946;
-      color: #fff;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.6px;
-      padding: 0 12px;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
     #ticker-track {
       flex: 1;
       overflow: hidden;
@@ -75,14 +61,14 @@
     }
 
     .ticker-item {
-      color: #c8d8f0;
+      color: #ffffff;
       font-size: 11px;
       padding: 0 28px;
       text-decoration: none;
       transition: color 0.2s;
     }
 
-    .ticker-item:hover { color: #ffffff; }
+    .ticker-item:hover { color: #c8d8f0; }
     .ticker-sep { color: #e63946; font-size: 13px; flex-shrink: 0; }
   </style>
 </head>
@@ -90,11 +76,10 @@
 
 <div id="header-bar">
   <span id="header-label">NOTIMAR</span>
-  <span id="header-text">Noticias destacadas sobre actualidad, medicina, salud, marketing y más...</span>
+  <span id="header-text">Destacadas sobre actualidad, medicina, salud, marketing y más...</span>
 </div>
 
 <div id="ticker-wrapper">
-  <div id="ticker-label">HOY</div>
   <div id="ticker-track">
     <div id="ticker-inner">
       <span style="color:#8899bb;padding:0 20px;font-size:11px;">Cargando...</span>
@@ -116,7 +101,7 @@ let animFrame = null;
 let paused = false;
 let pos = 0;
 let halfWidth = 0;
-const speed = 1.2;
+const speed = 1.1;
 
 async function loadNews() {
   let allItems = [];
