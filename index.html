@@ -8,84 +8,186 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Arial, sans-serif; background: #ffffff; }
 
-    #header-bar {
+    #nm-header {
       background: #e63946;
       padding: 6px 16px;
       display: flex;
       align-items: center;
       gap: 10px;
     }
-
-    #header-label {
+    #nm-label {
       color: #fff;
       font-size: 11px;
       font-weight: 700;
       letter-spacing: 0.6px;
-      white-space: nowrap;
-      flex-shrink: 0;
     }
-
-    #header-text {
+    #nm-sub {
       color: #ffe0e0;
       font-size: 11px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
-    #ticker-wrapper {
-      background: #2c3e6b;
-      width: 100%;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      overflow: hidden;
-    }
-
-    #ticker-track {
-      flex: 1;
-      overflow: hidden;
-      height: 100%;
+    /* === CARRUSEL PRINCIPAL === */
+    #carousel-area {
       position: relative;
+      overflow: hidden;
+      background: #2c3e6b;
+    }
+    #carousel-track {
+      display: flex;
+      transition: transform 0.5s cubic-bezier(.4,0,.2,1);
+    }
+    .nm-slide {
+      min-width: 100%;
+      position: relative;
+      height: 280px;
       cursor: pointer;
+      text-decoration: none;
+      display: block;
+      flex-shrink: 0;
+    }
+    .nm-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .nm-img-placeholder {
+      width: 100%;
+      height: 100%;
+      background: #2c3e6b;
+    }
+    .nm-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.82));
+      padding: 40px 18px 16px;
+    }
+    .nm-source {
+      font-size: 10px;
+      color: #e63946;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 5px;
+    }
+    .nm-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
-    #ticker-inner {
+    /* Botones anterior / siguiente */
+    .nm-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.45);
+      border: none;
+      color: #fff;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 20px;
       display: flex;
       align-items: center;
-      height: 100%;
-      white-space: nowrap;
-      position: absolute;
-      left: 0;
-      top: 0;
+      justify-content: center;
+      z-index: 10;
     }
+    .nm-btn:hover { background: rgba(0,0,0,0.7); }
+    #prev-btn { left: 10px; }
+    #next-btn { right: 10px; }
 
-    .ticker-item {
-      color: #ffffff;
-      font-size: 11px;
-      padding: 0 28px;
+    /* Puntos de navegación */
+    #dots-bar {
+      display: flex;
+      justify-content: center;
+      gap: 7px;
+      padding: 8px 0;
+      background: #f4f4f4;
+    }
+    .nm-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #ccc;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+    }
+    .nm-dot.active { background: #e63946; }
+
+    /* === GRID DE NOTICIAS SECUNDARIAS === */
+    #news-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: #ddd;
+      border-top: 1px solid #ddd;
+    }
+    .nm-card {
+      background: #fff;
+      padding: 10px 13px;
       text-decoration: none;
+      display: block;
+    }
+    .nm-card:hover .nm-card-title { color: #e63946; }
+    .nm-card-source {
+      font-size: 9px;
+      color: #e63946;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 4px;
+    }
+    .nm-card-title {
+      font-size: 11px;
+      color: #222;
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
       transition: color 0.2s;
     }
 
-    .ticker-item:hover { color: #c8d8f0; }
-    .ticker-sep { color: #e63946; font-size: 13px; flex-shrink: 0; }
+    /* Estado de carga */
+    #main-loading {
+      height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #8899bb;
+      font-size: 13px;
+    }
   </style>
 </head>
 <body>
 
-<div id="header-bar">
-  <span id="header-label">NOTIMAR</span>
-  <span id="header-text">Noticias destacadas sobre actualidad, medicina, salud, y más...</span>
+<!-- CABECERA -->
+<div id="nm-header">
+  <span id="nm-label">NOTIMAR</span>
+  <span id="nm-sub">Noticias destacadas sobre actualidad, medicina, salud, y más...</span>
 </div>
 
-<div id="ticker-wrapper">
-  <div id="ticker-track">
-    <div id="ticker-inner">
-      <span style="color:#8899bb;padding:0 20px;font-size:11px;">Cargando...</span>
-    </div>
-  </div>
+<!-- CARRUSEL PRINCIPAL -->
+<div id="carousel-area">
+  <div id="main-loading">Cargando noticias...</div>
+  <div id="carousel-track" style="display:none;"></div>
+  <button class="nm-btn" id="prev-btn" style="display:none;">&#8249;</button>
+  <button class="nm-btn" id="next-btn" style="display:none;">&#8250;</button>
 </div>
+<div id="dots-bar"></div>
+
+<!-- GRID SECUNDARIO -->
+<div id="news-grid"></div>
 
 <script>
 const RSS_URLS = [
@@ -97,74 +199,147 @@ const RSS_URLS = [
   "https://www.20minutos.es/rss/salud/",
 ];
 
-let animFrame = null;
-let paused = false;
-let pos = 0;
-let halfWidth = 0;
-const speed = 1.0;
+const FEATURED_COUNT = 5;
+const GRID_COUNT = 6;
+const AUTO_INTERVAL = 4500;
 
-async function loadNews() {
-  let allItems = [];
+let allItems = [];
+let currentSlide = 0;
+let autoTimer = null;
+
+function sourceName(url) {
+  try {
+    return new URL(url).hostname.replace('www.', '').split('.')[0].toUpperCase();
+  } catch(e) { return ''; }
+}
+
+function getImage(item) {
+  if (item.thumbnail && item.thumbnail.startsWith('http')) return item.thumbnail;
+  if (item.enclosure && item.enclosure.link && item.enclosure.link.startsWith('http')) return item.enclosure.link;
+  if (item.description) {
+    const m = item.description.match(/src=["']([^"']+\.(jpg|jpeg|png|webp)[^"']*)/i);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+async function loadAll() {
+  allItems = [];
   for (const url of RSS_URLS) {
     try {
       const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`);
       const data = await res.json();
-      if (data.status === "ok" && data.items?.length) allItems = allItems.concat(data.items);
+      if (data.status === 'ok' && data.items && data.items.length) {
+        allItems = allItems.concat(data.items.map(i => ({ ...i, _srcUrl: url })));
+      }
     } catch(e) {}
   }
+  allItems = allItems.sort(() => Math.random() - 0.5);
+  render();
+}
+
+function render() {
   if (!allItems.length) return;
-  renderTicker(allItems.sort(() => Math.random() - 0.5));
+  renderCarousel(allItems.slice(0, FEATURED_COUNT));
+  renderGrid(allItems.slice(FEATURED_COUNT, FEATURED_COUNT + GRID_COUNT));
 }
 
-function renderTicker(items) {
-  cancelAnimationFrame(animFrame);
-  animFrame = null;
-  const inner = document.getElementById("ticker-inner");
-  inner.innerHTML = "";
-  inner.style.transform = "translateX(0px)";
-  pos = 0;
+function renderCarousel(items) {
+  const track = document.getElementById('carousel-track');
+  const dotsBar = document.getElementById('dots-bar');
 
-  [items, items].forEach(set => {
-    set.forEach(item => {
-      const a = document.createElement("a");
-      a.className = "ticker-item";
-      a.textContent = item.title;
-      a.href = item.link;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      inner.appendChild(a);
-      const sep = document.createElement("span");
-      sep.className = "ticker-sep";
-      sep.textContent = "▶";
-      inner.appendChild(sep);
-    });
-  });
+  track.innerHTML = '';
+  dotsBar.innerHTML = '';
+  document.getElementById('main-loading').style.display = 'none';
+  track.style.display = 'flex';
+  document.getElementById('prev-btn').style.display = 'flex';
+  document.getElementById('next-btn').style.display = 'flex';
 
-  requestAnimationFrame(() => {
-    halfWidth = inner.scrollWidth / 2;
-    startAnimation();
-  });
-}
+  items.forEach((item, i) => {
+    const img = getImage(item);
+    const src = sourceName(item._srcUrl);
 
-function startAnimation() {
-  if (animFrame) return;
-  function step() {
-    if (!paused) {
-      pos += speed;
-      if (pos >= halfWidth) pos = 0;
-      document.getElementById("ticker-inner").style.transform = `translateX(${-pos}px)`;
+    const a = document.createElement('a');
+    a.className = 'nm-slide';
+    a.href = item.link;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+
+    if (img) {
+      a.innerHTML = `
+        <img src="${img}" alt="" onerror="this.outerHTML='<div class=nm-img-placeholder></div>'">
+        <div class="nm-overlay">
+          <div class="nm-source">${src}</div>
+          <div class="nm-title">${item.title}</div>
+        </div>`;
+    } else {
+      a.innerHTML = `
+        <div class="nm-img-placeholder"></div>
+        <div class="nm-overlay">
+          <div class="nm-source">${src}</div>
+          <div class="nm-title">${item.title}</div>
+        </div>`;
     }
-    animFrame = requestAnimationFrame(step);
-  }
-  animFrame = requestAnimationFrame(step);
+    track.appendChild(a);
+
+    const dot = document.createElement('button');
+    dot.className = 'nm-dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => { goTo(i); resetAuto(items.length); };
+    dotsBar.appendChild(dot);
+  });
+
+  goTo(0);
+  startAuto(items.length);
 }
 
-const track = document.getElementById("ticker-track");
-track.addEventListener("mouseenter", () => { paused = true; });
-track.addEventListener("mouseleave", () => { paused = false; });
+function renderGrid(items) {
+  const grid = document.getElementById('news-grid');
+  grid.innerHTML = '';
+  items.forEach(item => {
+    const a = document.createElement('a');
+    a.className = 'nm-card';
+    a.href = item.link;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.innerHTML = `
+      <div class="nm-card-source">${sourceName(item._srcUrl)}</div>
+      <div class="nm-card-title">${item.title}</div>`;
+    grid.appendChild(a);
+  });
+}
 
-loadNews();
-setInterval(loadNews, 10 * 60 * 1000);
+function goTo(idx) {
+  currentSlide = idx;
+  document.getElementById('carousel-track').style.transform = `translateX(${-idx * 100}%)`;
+  document.querySelectorAll('.nm-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === idx);
+  });
+}
+
+function startAuto(total) {
+  clearInterval(autoTimer);
+  autoTimer = setInterval(() => goTo((currentSlide + 1) % total), AUTO_INTERVAL);
+}
+
+function resetAuto(total) {
+  clearInterval(autoTimer);
+  startAuto(total);
+}
+
+document.getElementById('prev-btn').addEventListener('click', () => {
+  const total = document.querySelectorAll('.nm-slide').length;
+  goTo((currentSlide - 1 + total) % total);
+  resetAuto(total);
+});
+
+document.getElementById('next-btn').addEventListener('click', () => {
+  const total = document.querySelectorAll('.nm-slide').length;
+  goTo((currentSlide + 1) % total);
+  resetAuto(total);
+});
+
+loadAll();
+setInterval(loadAll, 10 * 60 * 1000);
 </script>
 
 </body>
