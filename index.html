@@ -8,12 +8,6 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Arial, sans-serif; background: #ffffff; }
 
-    /* Contenedor al 50% */
-    #notimar-root {
-      width: 50%;
-      min-width: 280px;
-    }
-
     /* === CARRUSEL === */
     #carousel-area {
       position: relative;
@@ -27,7 +21,7 @@
     .nm-slide {
       min-width: 100%;
       position: relative;
-      height: 240px;
+      height: 280px;
       cursor: pointer;
       text-decoration: none;
       display: block;
@@ -45,18 +39,18 @@
       position: absolute;
       bottom: 0; left: 0; right: 0;
       background: linear-gradient(transparent, rgba(10,20,50,0.88));
-      padding: 36px 14px 14px;
+      padding: 40px 18px 16px;
     }
     .nm-source {
-      font-size: 9px;
+      font-size: 10px;
       color: #e63946;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 4px;
+      margin-bottom: 5px;
     }
     .nm-title {
-      font-size: 13px;
+      font-size: 15px;
       font-weight: 700;
       color: #ffffff;
       line-height: 1.4;
@@ -67,28 +61,24 @@
     }
     .nm-counter {
       position: absolute;
-      top: 8px; right: 10px;
+      top: 10px; right: 12px;
       background: rgba(10,20,50,0.65);
-      color: #fff;
-      font-size: 10px;
-      padding: 2px 7px;
-      border-radius: 10px;
-      z-index: 10;
+      color: #fff; font-size: 10px;
+      padding: 2px 8px; border-radius: 10px; z-index: 10;
     }
     .nm-btn {
       position: absolute;
       top: 50%; transform: translateY(-50%);
-      background: rgba(10,20,50,0.55);
+      background: rgba(10,20,50,0.45);
       border: none; color: #fff;
-      width: 30px; height: 30px;
-      border-radius: 50%;
-      cursor: pointer; font-size: 20px;
+      width: 36px; height: 36px;
+      border-radius: 50%; cursor: pointer; font-size: 22px;
       display: flex; align-items: center; justify-content: center;
       z-index: 10;
     }
-    .nm-btn:hover { background: rgba(10,20,50,0.85); }
-    #prev-btn { left: 8px; }
-    #next-btn { right: 8px; }
+    .nm-btn:hover { background: rgba(10,20,50,0.80); }
+    #prev-btn { left: 10px; }
+    #next-btn { right: 10px; }
 
     #progress-bar { height: 3px; background: #1a2a4a; }
     #progress-fill { height: 100%; background: #e63946; width: 0%; }
@@ -97,60 +87,45 @@
     #grid-section { border-top: 2px solid #e63946; }
     #news-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1px;
-      background: #ddd;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: #ddd;
     }
     .nm-card {
-      background: #fff;
-      padding: 9px 11px;
-      text-decoration: none;
-      display: block;
+      background: #fff; padding: 10px 13px;
+      text-decoration: none; display: block;
     }
     .nm-card:hover .nm-card-title { color: #e63946; }
     .nm-card-source {
-      font-size: 9px;
-      color: #e63946;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-      margin-bottom: 3px;
+      font-size: 9px; color: #e63946; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px;
     }
     .nm-card-title {
-      font-size: 11px;
-      color: #222;
-      line-height: 1.4;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+      font-size: 11px; color: #222; line-height: 1.45;
+      display: -webkit-box; -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical; overflow: hidden;
       transition: color 0.2s;
     }
 
     #main-loading {
-      height: 240px;
+      height: 280px;
       display: flex; align-items: center; justify-content: center;
-      color: #8899bb; font-size: 12px;
+      color: #8899bb; font-size: 13px;
     }
   </style>
 </head>
 <body>
 
-<div id="notimar-root">
+<div id="carousel-area">
+  <div id="main-loading">Cargando noticias...</div>
+  <div id="carousel-track" style="display:none;"></div>
+  <span class="nm-counter" id="counter" style="display:none;"></span>
+  <button class="nm-btn" id="prev-btn" style="display:none;">&#8249;</button>
+  <button class="nm-btn" id="next-btn" style="display:none;">&#8250;</button>
+</div>
+<div id="progress-bar"><div id="progress-fill"></div></div>
 
-  <div id="carousel-area">
-    <div id="main-loading">Cargando noticias...</div>
-    <div id="carousel-track" style="display:none;"></div>
-    <span class="nm-counter" id="counter" style="display:none;"></span>
-    <button class="nm-btn" id="prev-btn" style="display:none;">&#8249;</button>
-    <button class="nm-btn" id="next-btn" style="display:none;">&#8250;</button>
-  </div>
-  <div id="progress-bar"><div id="progress-fill"></div></div>
-
-  <div id="grid-section">
-    <div id="news-grid"></div>
-  </div>
-
+<div id="grid-section">
+  <div id="news-grid"></div>
 </div>
 
 <script>
@@ -189,7 +164,7 @@ async function loadAll() {
   let items = [];
   for (const url of RSS_URLS) {
     try {
-      const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}&count=50`);
+      const res = await fetch('https://api.rss2json.com/v1/api.json?count=50&rss_url=' + encodeURIComponent(url));
       const data = await res.json();
       if (data.status === 'ok' && data.items && data.items.length) {
         items = items.concat(data.items.map(i => ({ ...i, _srcUrl: url })));
@@ -197,11 +172,10 @@ async function loadAll() {
     } catch(e) {}
   }
   allItems = items.sort(() => Math.random() - 0.5);
-  render();
+  if (allItems.length) render();
 }
 
 function render() {
-  if (!allItems.length) return;
   renderCarousel(allItems);
   renderGrid(allItems);
 }
@@ -209,7 +183,6 @@ function render() {
 function renderCarousel(items) {
   const track = document.getElementById('carousel-track');
   total = items.length;
-
   track.innerHTML = '';
   document.getElementById('main-loading').style.display = 'none';
   track.style.display = 'flex';
@@ -226,9 +199,9 @@ function renderCarousel(items) {
     a.target = '_blank';
     a.rel = 'noopener noreferrer';
     const imgHtml = img
-      ? `<img src="${img}" alt="" onerror="this.outerHTML='<div class=nm-img-placeholder></div>'">`
-      : `<div class="nm-img-placeholder"></div>`;
-    a.innerHTML = `${imgHtml}<div class="nm-overlay"><div class="nm-source">${src}</div><div class="nm-title">${item.title}</div></div>`;
+      ? '<img src="' + img + '" alt="" onerror="this.outerHTML=\'<div class=nm-img-placeholder></div>\'">'
+      : '<div class="nm-img-placeholder"></div>';
+    a.innerHTML = imgHtml + '<div class="nm-overlay"><div class="nm-source">' + src + '</div><div class="nm-title">' + item.title + '</div></div>';
     track.appendChild(a);
   });
 
@@ -245,33 +218,33 @@ function renderGrid(items) {
     a.href = item.link;
     a.target = '_blank';
     a.rel = 'noopener noreferrer';
-    a.innerHTML = `<div class="nm-card-source">${sourceName(item._srcUrl)}</div><div class="nm-card-title">${item.title}</div>`;
+    a.innerHTML = '<div class="nm-card-source">' + sourceName(item._srcUrl) + '</div><div class="nm-card-title">' + item.title + '</div>';
     grid.appendChild(a);
   });
 }
 
 function goTo(idx) {
   currentSlide = idx;
-  document.getElementById('carousel-track').style.transform = `translateX(${-idx * 100}%)`;
-  document.getElementById('counter').textContent = `${idx + 1} / ${total}`;
-  const fill = document.getElementById('progress-fill');
+  document.getElementById('carousel-track').style.transform = 'translateX(' + (-idx * 100) + '%)';
+  document.getElementById('counter').textContent = (idx + 1) + ' / ' + total;
+  var fill = document.getElementById('progress-fill');
   fill.style.transition = 'none';
   fill.style.width = '0%';
-  requestAnimationFrame(() => {
-    fill.style.transition = `width ${AUTO_INTERVAL}ms linear`;
+  requestAnimationFrame(function() {
+    fill.style.transition = 'width ' + AUTO_INTERVAL + 'ms linear';
     fill.style.width = '100%';
   });
 }
 
 function startAuto() {
   clearInterval(autoTimer);
-  autoTimer = setInterval(() => goTo((currentSlide + 1) % total), AUTO_INTERVAL);
+  autoTimer = setInterval(function() { goTo((currentSlide + 1) % total); }, AUTO_INTERVAL);
 }
 
-document.getElementById('prev-btn').addEventListener('click', () => { goTo((currentSlide - 1 + total) % total); clearInterval(autoTimer); startAuto(); });
-document.getElementById('next-btn').addEventListener('click', () => { goTo((currentSlide + 1) % total); clearInterval(autoTimer); startAuto(); });
-document.getElementById('carousel-area').addEventListener('mouseenter', () => clearInterval(autoTimer));
-document.getElementById('carousel-area').addEventListener('mouseleave', () => startAuto());
+document.getElementById('prev-btn').addEventListener('click', function() { goTo((currentSlide - 1 + total) % total); clearInterval(autoTimer); startAuto(); });
+document.getElementById('next-btn').addEventListener('click', function() { goTo((currentSlide + 1) % total); clearInterval(autoTimer); startAuto(); });
+document.getElementById('carousel-area').addEventListener('mouseenter', function() { clearInterval(autoTimer); });
+document.getElementById('carousel-area').addEventListener('mouseleave', function() { startAuto(); });
 
 loadAll();
 setInterval(loadAll, 10 * 60 * 1000);
