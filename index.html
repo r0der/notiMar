@@ -34,7 +34,7 @@
     }
     #carousel-track {
       display: flex;
-      transition: transform 0.5s cubic-bezier(.4,0,.2,1);
+      transition: transform 0.45s cubic-bezier(.4,0,.2,1);
     }
     .nm-slide {
       min-width: 100%;
@@ -58,9 +58,7 @@
     }
     .nm-overlay {
       position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
+      bottom: 0; left: 0; right: 0;
       background: linear-gradient(transparent, rgba(0,0,0,0.82));
       padding: 40px 18px 16px;
     }
@@ -82,8 +80,18 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
+    .nm-counter {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      z-index: 10;
+    }
 
-    /* Botones anterior / siguiente */
     .nm-btn {
       position: absolute;
       top: 50%;
@@ -95,27 +103,29 @@
       height: 36px;
       border-radius: 50%;
       cursor: pointer;
-      font-size: 20px;
+      font-size: 22px;
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 10;
     }
-    .nm-btn:hover { background: rgba(0,0,0,0.7); }
+    .nm-btn:hover { background: rgba(0,0,0,0.72); }
     #prev-btn { left: 10px; }
     #next-btn { right: 10px; }
 
-    /* Puntos de navegación */
+    #progress-bar { height: 3px; background: #ddd; }
+    #progress-fill { height: 100%; background: #e63946; width: 0%; }
+
     #dots-bar {
       display: flex;
       justify-content: center;
-      gap: 7px;
-      padding: 8px 0;
+      flex-wrap: wrap;
+      gap: 5px;
+      padding: 6px 10px;
       background: #f4f4f4;
     }
     .nm-dot {
-      width: 7px;
-      height: 7px;
+      width: 6px; height: 6px;
       border-radius: 50%;
       background: #ccc;
       border: none;
@@ -124,13 +134,22 @@
     }
     .nm-dot.active { background: #e63946; }
 
-    /* === GRID DE NOTICIAS SECUNDARIAS === */
+    /* === GRID SECUNDARIO === */
+    #grid-section { border-top: 3px solid #e63946; }
+    #grid-header {
+      padding: 6px 14px;
+      background: #f4f4f4;
+      font-size: 10px;
+      font-weight: 700;
+      color: #888;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
     #news-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 1px;
       background: #ddd;
-      border-top: 1px solid #ddd;
     }
     .nm-card {
       background: #fff;
@@ -158,7 +177,6 @@
       transition: color 0.2s;
     }
 
-    /* Estado de carga */
     #main-loading {
       height: 280px;
       display: flex;
@@ -171,23 +189,25 @@
 </head>
 <body>
 
-<!-- CABECERA -->
 <div id="nm-header">
   <span id="nm-label">NOTIMAR</span>
   <span id="nm-sub">Noticias destacadas sobre actualidad, medicina, salud, y más...</span>
 </div>
 
-<!-- CARRUSEL PRINCIPAL -->
 <div id="carousel-area">
   <div id="main-loading">Cargando noticias...</div>
   <div id="carousel-track" style="display:none;"></div>
+  <span class="nm-counter" id="counter" style="display:none;"></span>
   <button class="nm-btn" id="prev-btn" style="display:none;">&#8249;</button>
   <button class="nm-btn" id="next-btn" style="display:none;">&#8250;</button>
 </div>
+<div id="progress-bar"><div id="progress-fill"></div></div>
 <div id="dots-bar"></div>
 
-<!-- GRID SECUNDARIO -->
-<div id="news-grid"></div>
+<div id="grid-section">
+  <div id="grid-header">Más noticias</div>
+  <div id="news-grid"></div>
+</div>
 
 <script>
 const RSS_URLS = [
@@ -199,18 +219,17 @@ const RSS_URLS = [
   "https://www.20minutos.es/rss/salud/",
 ];
 
-const FEATURED_COUNT = 5;
-const GRID_COUNT = 6;
-const AUTO_INTERVAL = 4500;
+const AUTO_INTERVAL = 5000;
+const MAX_DOTS = 20;
 
 let allItems = [];
 let currentSlide = 0;
 let autoTimer = null;
+let total = 0;
 
 function sourceName(url) {
-  try {
-    return new URL(url).hostname.replace('www.', '').split('.')[0].toUpperCase();
-  } catch(e) { return ''; }
+  try { return new URL(url).hostname.replace('www.','').split('.')[0].toUpperCase(); }
+  catch(e) { return ''; }
 }
 
 function getImage(item) {
@@ -224,29 +243,30 @@ function getImage(item) {
 }
 
 async function loadAll() {
-  allItems = [];
+  let items = [];
   for (const url of RSS_URLS) {
     try {
-      const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`);
+      const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}&count=50`);
       const data = await res.json();
       if (data.status === 'ok' && data.items && data.items.length) {
-        allItems = allItems.concat(data.items.map(i => ({ ...i, _srcUrl: url })));
+        items = items.concat(data.items.map(i => ({ ...i, _srcUrl: url })));
       }
     } catch(e) {}
   }
-  allItems = allItems.sort(() => Math.random() - 0.5);
+  allItems = items.sort(() => Math.random() - 0.5);
   render();
 }
 
 function render() {
   if (!allItems.length) return;
-  renderCarousel(allItems.slice(0, FEATURED_COUNT));
-  renderGrid(allItems.slice(FEATURED_COUNT, FEATURED_COUNT + GRID_COUNT));
+  renderCarousel(allItems);          // TODAS en el carrusel
+  renderGrid(allItems);              // TODAS en el grid
 }
 
 function renderCarousel(items) {
   const track = document.getElementById('carousel-track');
   const dotsBar = document.getElementById('dots-bar');
+  total = items.length;
 
   track.innerHTML = '';
   dotsBar.innerHTML = '';
@@ -254,42 +274,34 @@ function renderCarousel(items) {
   track.style.display = 'flex';
   document.getElementById('prev-btn').style.display = 'flex';
   document.getElementById('next-btn').style.display = 'flex';
+  document.getElementById('counter').style.display = 'block';
 
   items.forEach((item, i) => {
     const img = getImage(item);
     const src = sourceName(item._srcUrl);
-
     const a = document.createElement('a');
     a.className = 'nm-slide';
     a.href = item.link;
     a.target = '_blank';
     a.rel = 'noopener noreferrer';
-
-    if (img) {
-      a.innerHTML = `
-        <img src="${img}" alt="" onerror="this.outerHTML='<div class=nm-img-placeholder></div>'">
-        <div class="nm-overlay">
-          <div class="nm-source">${src}</div>
-          <div class="nm-title">${item.title}</div>
-        </div>`;
-    } else {
-      a.innerHTML = `
-        <div class="nm-img-placeholder"></div>
-        <div class="nm-overlay">
-          <div class="nm-source">${src}</div>
-          <div class="nm-title">${item.title}</div>
-        </div>`;
-    }
+    const imgHtml = img
+      ? `<img src="${img}" alt="" onerror="this.outerHTML='<div class=nm-img-placeholder></div>'">`
+      : `<div class="nm-img-placeholder"></div>`;
+    a.innerHTML = `${imgHtml}<div class="nm-overlay"><div class="nm-source">${src}</div><div class="nm-title">${item.title}</div></div>`;
     track.appendChild(a);
 
-    const dot = document.createElement('button');
-    dot.className = 'nm-dot' + (i === 0 ? ' active' : '');
-    dot.onclick = () => { goTo(i); resetAuto(items.length); };
-    dotsBar.appendChild(dot);
+    if (total <= MAX_DOTS) {
+      const dot = document.createElement('button');
+      dot.className = 'nm-dot' + (i === 0 ? ' active' : '');
+      dot.onclick = () => { goTo(i); resetAuto(); };
+      dotsBar.appendChild(dot);
+    }
   });
 
+  if (total > MAX_DOTS) dotsBar.style.display = 'none';
+
   goTo(0);
-  startAuto(items.length);
+  startAuto();
 }
 
 function renderGrid(items) {
@@ -301,9 +313,7 @@ function renderGrid(items) {
     a.href = item.link;
     a.target = '_blank';
     a.rel = 'noopener noreferrer';
-    a.innerHTML = `
-      <div class="nm-card-source">${sourceName(item._srcUrl)}</div>
-      <div class="nm-card-title">${item.title}</div>`;
+    a.innerHTML = `<div class="nm-card-source">${sourceName(item._srcUrl)}</div><div class="nm-card-title">${item.title}</div>`;
     grid.appendChild(a);
   });
 }
@@ -311,32 +321,31 @@ function renderGrid(items) {
 function goTo(idx) {
   currentSlide = idx;
   document.getElementById('carousel-track').style.transform = `translateX(${-idx * 100}%)`;
-  document.querySelectorAll('.nm-dot').forEach((d, i) => {
-    d.classList.toggle('active', i === idx);
+  document.getElementById('counter').textContent = `${idx + 1} / ${total}`;
+  document.querySelectorAll('.nm-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+  const fill = document.getElementById('progress-fill');
+  fill.style.transition = 'none';
+  fill.style.width = '0%';
+  requestAnimationFrame(() => {
+    fill.style.transition = `width ${AUTO_INTERVAL}ms linear`;
+    fill.style.width = '100%';
   });
 }
 
-function startAuto(total) {
+function startAuto() {
   clearInterval(autoTimer);
   autoTimer = setInterval(() => goTo((currentSlide + 1) % total), AUTO_INTERVAL);
 }
 
-function resetAuto(total) {
+function resetAuto() {
   clearInterval(autoTimer);
-  startAuto(total);
+  startAuto();
 }
 
-document.getElementById('prev-btn').addEventListener('click', () => {
-  const total = document.querySelectorAll('.nm-slide').length;
-  goTo((currentSlide - 1 + total) % total);
-  resetAuto(total);
-});
-
-document.getElementById('next-btn').addEventListener('click', () => {
-  const total = document.querySelectorAll('.nm-slide').length;
-  goTo((currentSlide + 1) % total);
-  resetAuto(total);
-});
+document.getElementById('prev-btn').addEventListener('click', () => { goTo((currentSlide - 1 + total) % total); resetAuto(); });
+document.getElementById('next-btn').addEventListener('click', () => { goTo((currentSlide + 1) % total); resetAuto(); });
+document.getElementById('carousel-area').addEventListener('mouseenter', () => clearInterval(autoTimer));
+document.getElementById('carousel-area').addEventListener('mouseleave', () => startAuto());
 
 loadAll();
 setInterval(loadAll, 10 * 60 * 1000);
