@@ -8,6 +8,32 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Arial, sans-serif; background: #ffffff; }
 
+    /* ── Contenedor principal 1/3 de la hoja ── */
+    #notimar-root {
+      width: 33.333%;
+      min-width: 260px;
+      max-width: 420px;
+    }
+
+    /* ── Título superior ── */
+    #nm-header {
+      background: #1a2a4a;
+      padding: 5px 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #nm-header span {
+      font-size: 10px;
+      color: #8aa8cc;
+      letter-spacing: 0.3px;
+    }
+    #nm-header strong {
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    /* ── Carrusel ── */
     #carousel-area {
       position: relative;
       overflow: hidden;
@@ -20,14 +46,15 @@
     .nm-slide {
       min-width: 100%;
       position: relative;
-      height: 280px;
+      height: 200px;
       text-decoration: none;
       display: block;
       flex-shrink: 0;
     }
     .nm-slide img {
       width: 100%; height: 100%;
-      object-fit: cover; display: block;
+      object-fit: cover; object-position: center top;
+      display: block;
     }
     .nm-img-placeholder {
       width: 100%; height: 100%;
@@ -36,16 +63,16 @@
     .nm-overlay {
       position: absolute;
       bottom: 0; left: 0; right: 0;
-      background: linear-gradient(transparent, rgba(5,15,40,0.92));
-      padding: 40px 18px 16px;
+      background: linear-gradient(transparent, rgba(5,15,40,0.93));
+      padding: 30px 12px 12px;
     }
     .nm-source {
-      font-size: 10px; color: #e63946;
+      font-size: 9px; color: #e63946;
       font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.5px; margin-bottom: 5px;
+      letter-spacing: 0.5px; margin-bottom: 4px;
     }
     .nm-title {
-      font-size: 15px; font-weight: 700;
+      font-size: 12px; font-weight: 700;
       color: #ffffff; line-height: 1.4;
       display: -webkit-box;
       -webkit-line-clamp: 2;
@@ -53,165 +80,179 @@
       overflow: hidden;
     }
     .nm-counter {
-      position: absolute; top: 10px; right: 12px;
+      position: absolute; top: 7px; right: 9px;
       background: rgba(5,15,40,0.65);
-      color: #fff; font-size: 10px;
-      padding: 2px 8px; border-radius: 10px; z-index: 10;
+      color: #fff; font-size: 9px;
+      padding: 1px 7px; border-radius: 10px; z-index: 10;
     }
     .nm-btn {
       position: absolute; top: 50%; transform: translateY(-50%);
       background: rgba(5,15,40,0.5);
       border: none; color: #fff;
-      width: 36px; height: 36px; border-radius: 50%;
-      cursor: pointer; font-size: 22px; z-index: 10;
+      width: 28px; height: 28px; border-radius: 50%;
+      cursor: pointer; font-size: 18px; z-index: 10;
       display: flex; align-items: center; justify-content: center;
     }
     .nm-btn:hover { background: rgba(5,15,40,0.85); }
-    #prev-btn { left: 10px; }
-    #next-btn { right: 10px; }
+    #prev-btn { left: 7px; }
+    #next-btn { right: 7px; }
 
-    #progress-bar { height: 3px; background: #1a2a4a; }
+    #progress-bar { height: 2px; background: #1a2a4a; }
     #progress-fill { height: 100%; background: #e63946; width: 0%; }
 
-    #grid-section { border-top: 2px solid #e63946; }
-
-    #grid-nav {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 6px 10px; background: #f4f4f4;
+    /* ── Separador con título ── */
+    #nm-section-title {
+      background: #f4f4f4;
+      border-top: 2px solid #e63946;
       border-bottom: 1px solid #ddd;
+      padding: 5px 12px;
+      display: flex; align-items: center; justify-content: space-between;
     }
-    #grid-nav-info {
-      font-size: 10px; color: #888; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.4px;
+    #nm-section-title span {
+      font-size: 9px; font-weight: 700; color: #888;
+      text-transform: uppercase; letter-spacing: 0.5px;
     }
-    #grid-nav-btns { display: flex; gap: 6px; }
+    #grid-page-info {
+      font-size: 9px; color: #aaa;
+    }
+
+    /* ── Grid: 1 columna, 5 filas ── */
+    #news-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: #ddd;
+    }
+    .nm-card {
+      background: #fff;
+      padding: 8px 12px;
+      text-decoration: none;
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      min-height: 54px;
+    }
+    .nm-card:hover .nm-card-title { color: #e63946; }
+    .nm-card-bullet {
+      flex-shrink: 0;
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #e63946;
+      margin-top: 5px;
+    }
+    .nm-card-body { flex: 1; min-width: 0; }
+    .nm-card-source {
+      font-size: 8px; color: #e63946; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px;
+    }
+    .nm-card-title {
+      font-size: 11px; color: #222; line-height: 1.4;
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
+      transition: color 0.15s;
+    }
+
+    /* ── Paginación ── */
+    #grid-nav {
+      display: flex; align-items: center; justify-content: flex-end;
+      gap: 5px; padding: 5px 10px;
+      background: #f4f4f4;
+      border-top: 1px solid #ddd;
+    }
     .grid-nav-btn {
       background: #1a2a4a; border: none; color: #fff;
-      width: 26px; height: 26px; border-radius: 50%;
-      cursor: pointer; font-size: 16px;
+      width: 22px; height: 22px; border-radius: 50%;
+      cursor: pointer; font-size: 14px;
       display: flex; align-items: center; justify-content: center;
       transition: background 0.2s;
     }
     .grid-nav-btn:hover { background: #e63946; }
     .grid-nav-btn:disabled { background: #ccc; cursor: default; }
 
-    #news-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1px; background: #ddd;
-    }
-    .nm-card {
-      background: #fff; padding: 10px 13px;
-      text-decoration: none; display: block;
-    }
-    .nm-card:hover .nm-card-title { color: #e63946; }
-    .nm-card-source {
-      font-size: 9px; color: #e63946; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px;
-    }
-    .nm-card-title {
-      font-size: 11px; color: #222; line-height: 1.45;
-      display: -webkit-box; -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical; overflow: hidden;
-      transition: color 0.2s;
-    }
-
+    /* ── Cargando ── */
     #main-loading {
-      height: 280px;
+      height: 200px;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      gap: 10px; color: #8899bb; font-size: 13px;
+      gap: 8px; color: #8899bb; font-size: 12px;
     }
-    #loading-detail {
-      font-size: 10px; color: #4a6a9a;
-    }
+    #loading-detail { font-size: 9px; color: #4a6a9a; }
   </style>
 </head>
 <body>
 
-<div id="carousel-area">
-  <div id="main-loading">
-    <span>Cargando noticias...</span>
-    <span id="loading-detail"></span>
-  </div>
-  <div id="carousel-track" style="display:none;"></div>
-  <span class="nm-counter" id="counter" style="display:none;"></span>
-  <button class="nm-btn" id="prev-btn" style="display:none;">&#8249;</button>
-  <button class="nm-btn" id="next-btn" style="display:none;">&#8250;</button>
-</div>
-<div id="progress-bar"><div id="progress-fill"></div></div>
+<div id="notimar-root">
 
-<div id="grid-section">
-  <div id="grid-nav">
-    <span id="grid-nav-info">Más noticias</span>
-    <div id="grid-nav-btns">
-      <button class="grid-nav-btn" id="grid-prev" title="Anterior">&#8249;</button>
-      <button class="grid-nav-btn" id="grid-next" title="Siguiente">&#8250;</button>
+  <!-- Título -->
+  <div id="nm-header">
+    <span><strong>Noticias Mar</strong> — destacadas sobre actualidad, medicina, salud, y más...</span>
+  </div>
+
+  <!-- Carrusel -->
+  <div id="carousel-area">
+    <div id="main-loading">
+      <span>Cargando noticias...</span>
+      <span id="loading-detail"></span>
     </div>
+    <div id="carousel-track" style="display:none;"></div>
+    <span class="nm-counter" id="counter" style="display:none;"></span>
+    <button class="nm-btn" id="prev-btn" style="display:none;">&#8249;</button>
+    <button class="nm-btn" id="next-btn" style="display:none;">&#8250;</button>
+  </div>
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+
+  <!-- Noticias secundarias -->
+  <div id="nm-section-title">
+    <span>Más noticias</span>
+    <span id="grid-page-info"></span>
   </div>
   <div id="news-grid"></div>
+  <div id="grid-nav">
+    <button class="grid-nav-btn" id="grid-prev">&#8249;</button>
+    <button class="grid-nav-btn" id="grid-next">&#8250;</button>
+  </div>
+
 </div>
 
 <script>
-/* ─────────────────────────────────────────
-   CONFIGURACIÓN
-───────────────────────────────────────── */
 const FEEDS = [
-  { url: "https://feeds.bbci.co.uk/mundo/rss.xml",             name: "BBC Mundo"    },
-  { url: "https://www.lanacion.com.ar/arc/outboundfeeds/rss/", name: "La Nación"    },
-  { url: "https://www.clarin.com/rss/lo-ultimo/",              name: "Clarín"       },
-  { url: "https://www.america-retail.com/feed/",               name: "América Retail"},
-  { url: "https://www.lavanguardia.com/rss/salud.xml",         name: "La Vanguardia"},
-  { url: "https://www.20minutos.es/rss/salud/",                name: "20 Minutos"   },
+  { url: "https://feeds.bbci.co.uk/mundo/rss.xml",             name: "BBC Mundo"     },
+  { url: "https://www.lanacion.com.ar/arc/outboundfeeds/rss/", name: "La Nación"     },
+  { url: "https://www.clarin.com/rss/lo-ultimo/",              name: "Clarín"        },
+  { url: "https://www.america-retail.com/feed/",               name: "América Retail" },
+  { url: "https://www.lavanguardia.com/rss/salud.xml",         name: "La Vanguardia" },
+  { url: "https://www.20minutos.es/rss/salud/",                name: "20 Minutos"    },
 ];
 
 const AUTO_INTERVAL = 5000;
+const GRID_PER_PAGE = 5;
 
-/* ─────────────────────────────────────────
-   PROXIES en orden de preferencia
-   Cada función recibe la URL del feed
-   y devuelve una Promise con array de items
-   o lanza error si falla.
-───────────────────────────────────────── */
+let allItems = [], current = 0, total = 0, timer = null, gridPage = 0;
 
-// Proxy 1: rss2json (más popular, puede tener rate limit)
+/* ── Proxies ── */
 async function viaRss2json(feedUrl) {
-  const api = "https://api.rss2json.com/v1/api.json?count=50&rss_url=" + encodeURIComponent(feedUrl);
-  const r = await fetch(api);
+  const r = await fetch("https://api.rss2json.com/v1/api.json?count=50&rss_url=" + encodeURIComponent(feedUrl));
   const d = await r.json();
-  if (d.status !== "ok" || !d.items?.length) throw new Error("rss2json: no items");
-  return d.items.map(i => ({
-    title:       i.title       || "",
-    link:        i.link        || "",
-    description: i.description || "",
-    thumbnail:   i.thumbnail   || "",
-    enclosure:   i.enclosure   || null,
-  }));
+  if (d.status !== "ok" || !d.items?.length) throw new Error("no items");
+  return d.items.map(i => ({ title: i.title||"", link: i.link||"", description: i.description||"", thumbnail: i.thumbnail||"", enclosure: i.enclosure||null }));
 }
 
-// Proxy 2: allorigins → XML crudo → parser propio
 async function viaAllOrigins(feedUrl) {
-  const api = "https://api.allorigins.win/get?url=" + encodeURIComponent(feedUrl);
-  const r = await fetch(api);
+  const r = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(feedUrl));
   const d = await r.json();
-  if (!d.contents) throw new Error("allorigins: sin contenido");
+  if (!d.contents) throw new Error("sin contenido");
   return parseRSS(d.contents);
 }
 
-// Proxy 3: corsproxy.io → XML crudo → parser propio
 async function viaCorsProxy(feedUrl) {
-  const api = "https://corsproxy.io/?" + encodeURIComponent(feedUrl);
-  const r = await fetch(api);
-  const text = await r.text();
-  return parseRSS(text);
+  const r = await fetch("https://corsproxy.io/?" + encodeURIComponent(feedUrl));
+  return parseRSS(await r.text());
 }
 
-// Parser XML manual (funciona con RSS 2.0 y Atom básico)
 function parseRSS(xml) {
   const doc = new DOMParser().parseFromString(xml, "text/xml");
-  const items = [...doc.querySelectorAll("item, entry")];
-  return items.map(el => {
-    const get = tag => el.querySelector(tag)?.textContent?.trim() || "";
+  return [...doc.querySelectorAll("item, entry")].map(el => {
+    const get = t => el.querySelector(t)?.textContent?.trim() || "";
     const enc = el.querySelector("enclosure");
     const med = el.querySelector("thumbnail") || el.querySelector("content");
     return {
@@ -224,120 +265,56 @@ function parseRSS(xml) {
   }).filter(i => i.title && i.link);
 }
 
-/* ─────────────────────────────────────────
-   CARGA UN FEED intentando cada proxy
-───────────────────────────────────────── */
 async function loadFeed(feed) {
-  const proxies = [viaRss2json, viaAllOrigins, viaCorsProxy];
-  for (const proxy of proxies) {
+  for (const proxy of [viaRss2json, viaAllOrigins, viaCorsProxy]) {
     try {
       const items = await proxy(feed.url);
       if (items.length) return items.map(i => ({ ...i, _name: feed.name }));
-    } catch (_) {}
+    } catch(_) {}
   }
-  return []; // feed no disponible, continuar con los demás
+  return [];
 }
 
-/* ─────────────────────────────────────────
-   EXTRAE IMAGEN del item
-───────────────────────────────────────── */
 function getImage(item) {
   if (item.thumbnail && /^https?:/.test(item.thumbnail)) return item.thumbnail;
   if (item.enclosure?.link && /^https?:/.test(item.enclosure.link)) return item.enclosure.link;
-  const m = (item.description || "").match(/src=["']([^"']+\.(jpe?g|png|webp)[^"']*)/i);
+  const m = (item.description||"").match(/src=["']([^"']+\.(jpe?g|png|webp)[^"']*)/i);
   return m ? m[1] : null;
 }
 
-/* ─────────────────────────────────────────
-   ESTADO GLOBAL
-───────────────────────────────────────── */
-let allItems = [], current = 0, total = 0, timer = null;
-const GRID_PER_PAGE = 8;
-let gridPage = 0;
-
-function renderGridPage(page) {
-  gridPage = page;
-  const totalPages = Math.ceil(allItems.length / GRID_PER_PAGE);
-  const start = page * GRID_PER_PAGE;
-  const pageItems = allItems.slice(start, start + GRID_PER_PAGE);
-
-  const grid = document.getElementById("news-grid");
-  grid.innerHTML = "";
-  pageItems.forEach(function(item) {
-    const a = document.createElement("a");
-    a.className = "nm-card";
-    a.href = item.link;
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-    a.innerHTML =
-      '<div class="nm-card-source">' + item._name + '</div>' +
-      '<div class="nm-card-title">' + item.title + '</div>';
-    grid.appendChild(a);
-  });
-
-  document.getElementById("grid-nav-info").textContent =
-    "Página " + (page + 1) + " de " + totalPages + " — " + allItems.length + " noticias";
-  document.getElementById("grid-prev").disabled = (page === 0);
-  document.getElementById("grid-next").disabled = (page >= totalPages - 1);
-}
-
-document.getElementById("grid-prev").addEventListener("click", function() {
-  if (gridPage > 0) renderGridPage(gridPage - 1);
-});
-document.getElementById("grid-next").addEventListener("click", function() {
-  const totalPages = Math.ceil(allItems.length / GRID_PER_PAGE);
-  if (gridPage < totalPages - 1) renderGridPage(gridPage + 1);
-});
-
-/* ─────────────────────────────────────────
-   CARGA TODOS LOS FEEDS
-───────────────────────────────────────── */
+/* ── Carga ── */
 async function loadAll() {
   document.getElementById("loading-detail").textContent = "(consultando " + FEEDS.length + " fuentes...)";
-
-  // cargar en paralelo
   const results = await Promise.all(FEEDS.map(loadFeed));
   let merged = [];
   results.forEach(r => { merged = merged.concat(r); });
-
-  // mezclar
   for (let i = merged.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [merged[i], merged[j]] = [merged[j], merged[i]];
   }
-
   allItems = merged;
-
   if (!allItems.length) {
-    document.getElementById("loading-detail").textContent = "No se pudieron cargar las fuentes. Reintentando en 2 min...";
+    document.getElementById("loading-detail").textContent = "No se pudieron cargar. Reintentando...";
     return;
   }
-
   render();
 }
 
-/* ─────────────────────────────────────────
-   RENDER
-───────────────────────────────────────── */
+/* ── Render ── */
 function render() {
   total = allItems.length;
 
-  // ── Carrusel ──
+  // Carrusel
   const track = document.getElementById("carousel-track");
   track.innerHTML = "";
-
-  allItems.forEach(item => {
+  allItems.forEach(function(item) {
     const img = getImage(item);
     const a = document.createElement("a");
     a.className = "nm-slide";
-    a.href = item.link;
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-
+    a.href = item.link; a.target = "_blank"; a.rel = "noopener noreferrer";
     const imgHtml = img
       ? '<img src="' + img + '" alt="" loading="lazy" onerror="this.outerHTML=\'<div class=nm-img-placeholder></div>\'">'
       : '<div class="nm-img-placeholder"></div>';
-
     a.innerHTML = imgHtml +
       '<div class="nm-overlay">' +
         '<div class="nm-source">' + item._name + '</div>' +
@@ -351,30 +328,50 @@ function render() {
   document.getElementById("prev-btn").style.display = "flex";
   document.getElementById("next-btn").style.display = "flex";
   document.getElementById("counter").style.display = "block";
-
   goTo(0);
   startAuto();
 
-  // ── Grid paginado ──
+  // Grid
   renderGridPage(0);
 }
 
-/* ─────────────────────────────────────────
-   NAVEGACIÓN
-───────────────────────────────────────── */
+function renderGridPage(page) {
+  gridPage = page;
+  const totalPages = Math.ceil(allItems.length / GRID_PER_PAGE);
+  const pageItems = allItems.slice(page * GRID_PER_PAGE, page * GRID_PER_PAGE + GRID_PER_PAGE);
+
+  const grid = document.getElementById("news-grid");
+  grid.innerHTML = "";
+  pageItems.forEach(function(item) {
+    const a = document.createElement("a");
+    a.className = "nm-card";
+    a.href = item.link; a.target = "_blank"; a.rel = "noopener noreferrer";
+    a.innerHTML =
+      '<div class="nm-card-bullet"></div>' +
+      '<div class="nm-card-body">' +
+        '<div class="nm-card-source">' + item._name + '</div>' +
+        '<div class="nm-card-title">' + item.title + '</div>' +
+      '</div>';
+    grid.appendChild(a);
+  });
+
+  document.getElementById("grid-page-info").textContent = (page + 1) + " / " + totalPages;
+  document.getElementById("grid-prev").disabled = (page === 0);
+  document.getElementById("grid-next").disabled = (page >= totalPages - 1);
+}
+
+/* ── Navegación carrusel ── */
 function goTo(idx) {
   current = (idx + total) % total;
   document.getElementById("carousel-track").style.transform = "translateX(" + (-current * 100) + "%)";
   document.getElementById("counter").textContent = (current + 1) + " / " + total;
   var fill = document.getElementById("progress-fill");
-  fill.style.transition = "none";
-  fill.style.width = "0%";
+  fill.style.transition = "none"; fill.style.width = "0%";
   requestAnimationFrame(function() {
     fill.style.transition = "width " + AUTO_INTERVAL + "ms linear";
     fill.style.width = "100%";
   });
 }
-
 function startAuto() {
   clearInterval(timer);
   timer = setInterval(function() { goTo(current + 1); }, AUTO_INTERVAL);
@@ -385,9 +382,13 @@ document.getElementById("next-btn").addEventListener("click", function() { goTo(
 document.getElementById("carousel-area").addEventListener("mouseenter", function() { clearInterval(timer); });
 document.getElementById("carousel-area").addEventListener("mouseleave", function() { startAuto(); });
 
-/* ─────────────────────────────────────────
-   INICIO
-───────────────────────────────────────── */
+/* ── Navegación grid ── */
+document.getElementById("grid-prev").addEventListener("click", function() { if (gridPage > 0) renderGridPage(gridPage - 1); });
+document.getElementById("grid-next").addEventListener("click", function() {
+  if (gridPage < Math.ceil(allItems.length / GRID_PER_PAGE) - 1) renderGridPage(gridPage + 1);
+});
+
+/* ── Inicio ── */
 loadAll();
 setInterval(loadAll, 10 * 60 * 1000);
 </script>
