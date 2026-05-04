@@ -74,9 +74,30 @@
     #progress-fill { height: 100%; background: #e63946; width: 0%; }
 
     #grid-section { border-top: 2px solid #e63946; }
+
+    #grid-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 10px; background: #f4f4f4;
+      border-bottom: 1px solid #ddd;
+    }
+    #grid-nav-info {
+      font-size: 10px; color: #888; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    #grid-nav-btns { display: flex; gap: 6px; }
+    .grid-nav-btn {
+      background: #1a2a4a; border: none; color: #fff;
+      width: 26px; height: 26px; border-radius: 50%;
+      cursor: pointer; font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .grid-nav-btn:hover { background: #e63946; }
+    .grid-nav-btn:disabled { background: #ccc; cursor: default; }
+
     #news-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 1px; background: #ddd;
     }
     .nm-card {
@@ -121,6 +142,13 @@
 <div id="progress-bar"><div id="progress-fill"></div></div>
 
 <div id="grid-section">
+  <div id="grid-nav">
+    <span id="grid-nav-info">Más noticias</span>
+    <div id="grid-nav-btns">
+      <button class="grid-nav-btn" id="grid-prev" title="Anterior">&#8249;</button>
+      <button class="grid-nav-btn" id="grid-next" title="Siguiente">&#8250;</button>
+    </div>
+  </div>
   <div id="news-grid"></div>
 </div>
 
@@ -224,6 +252,42 @@ function getImage(item) {
    ESTADO GLOBAL
 ───────────────────────────────────────── */
 let allItems = [], current = 0, total = 0, timer = null;
+const GRID_PER_PAGE = 8;
+let gridPage = 0;
+
+function renderGridPage(page) {
+  gridPage = page;
+  const totalPages = Math.ceil(allItems.length / GRID_PER_PAGE);
+  const start = page * GRID_PER_PAGE;
+  const pageItems = allItems.slice(start, start + GRID_PER_PAGE);
+
+  const grid = document.getElementById("news-grid");
+  grid.innerHTML = "";
+  pageItems.forEach(function(item) {
+    const a = document.createElement("a");
+    a.className = "nm-card";
+    a.href = item.link;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.innerHTML =
+      '<div class="nm-card-source">' + item._name + '</div>' +
+      '<div class="nm-card-title">' + item.title + '</div>';
+    grid.appendChild(a);
+  });
+
+  document.getElementById("grid-nav-info").textContent =
+    "Página " + (page + 1) + " de " + totalPages + " — " + allItems.length + " noticias";
+  document.getElementById("grid-prev").disabled = (page === 0);
+  document.getElementById("grid-next").disabled = (page >= totalPages - 1);
+}
+
+document.getElementById("grid-prev").addEventListener("click", function() {
+  if (gridPage > 0) renderGridPage(gridPage - 1);
+});
+document.getElementById("grid-next").addEventListener("click", function() {
+  const totalPages = Math.ceil(allItems.length / GRID_PER_PAGE);
+  if (gridPage < totalPages - 1) renderGridPage(gridPage + 1);
+});
 
 /* ─────────────────────────────────────────
    CARGA TODOS LOS FEEDS
@@ -291,20 +355,8 @@ function render() {
   goTo(0);
   startAuto();
 
-  // ── Grid ──
-  const grid = document.getElementById("news-grid");
-  grid.innerHTML = "";
-  allItems.forEach(item => {
-    const a = document.createElement("a");
-    a.className = "nm-card";
-    a.href = item.link;
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-    a.innerHTML =
-      '<div class="nm-card-source">' + item._name + '</div>' +
-      '<div class="nm-card-title">' + item.title + '</div>';
-    grid.appendChild(a);
-  });
+  // ── Grid paginado ──
+  renderGridPage(0);
 }
 
 /* ─────────────────────────────────────────
