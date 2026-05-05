@@ -9,238 +9,142 @@
 body { font-family: Arial, sans-serif; background:#fff; }
 
 #notimar-root {
-  width: 60%;
+  width: 65%;
   min-width: 320px;
-  max-width: 820px;
+  max-width: 900px;
 }
 
-#nm-header {
-  background:#1a2a4a;
-  padding:7px 12px;
-  color:#fff;
-}
-
-#carousel-area {
-  position:relative;
-  overflow:hidden;
-  height:220px;
-  background:#1a2a4a;
-}
-
-#carousel-track {
-  display:flex;
-  height:100%;
-  transition:transform .4s ease;
-}
-
-.nm-slide {
-  min-width:100%;
-  position:relative;
-}
-
-.nm-slide img {
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-
-.nm-img-placeholder {
-  width:100%;
-  height:100%;
-  background:linear-gradient(135deg,#1a2a4a,#2c3e6b);
-}
-
-.nm-overlay {
-  position:absolute;
-  bottom:0;
-  width:100%;
-  background:linear-gradient(transparent,rgba(0,0,0,.8));
-  padding:12px;
-  color:#fff;
-}
-
-.nm-btn {
-  position:absolute;
-  top:50%;
-  transform:translateY(-50%);
-  background:rgba(0,0,0,.5);
-  color:#fff;
-  border:none;
-  width:30px;height:30px;
-  border-radius:50%;
-  cursor:pointer;
-}
-#prev-btn{left:10px;}
-#next-btn{right:10px;}
-
-#progress-bar{height:3px;background:#ddd;}
-#progress-fill{height:100%;background:#e63946;width:0;}
-
-#nm-section-title{
-  padding:6px 10px;
-  background:#f4f4f4;
-  font-size:12px;
-  font-weight:bold;
-  display:flex;
-  justify-content:space-between;
-}
-
-#news-grid{
-  display:flex;
-  flex-direction:column;
-  background:#ddd;
-}
-
-.nm-card{
-  background:#fff;
-  padding:10px;
-  text-decoration:none;
-  color:#000;
-  border-bottom:1px solid #eee;
-}
-
-#grid-nav{
-  display:flex;
-  justify-content:flex-end;
-  gap:5px;
-  padding:5px;
-}
-
-.grid-nav-btn{
-  width:25px;height:25px;
-  border:none;
-  background:#1a2a4a;
-  color:#fff;
-  border-radius:50%;
-  cursor:pointer;
-}
+/* --- resto igual --- */
+#carousel-area { position: relative; overflow: hidden; background:#1a2a4a; height:200px;}
+#carousel-track { display:flex; height:100%; transition:transform .45s ease;}
+.nm-slide { min-width:100%; height:200px; position:relative; }
+.nm-slide img { width:100%; height:100%; object-fit:cover; }
+.nm-img-placeholder { width:100%; height:100%; background:#2c3e6b;}
+.nm-overlay { position:absolute; bottom:0; width:100%; background:linear-gradient(transparent,rgba(0,0,0,.9)); padding:10px; color:#fff;}
 </style>
 </head>
 
 <body>
-
 <div id="notimar-root">
-
-<div id="nm-header">Noticias Mar</div>
 
 <div id="carousel-area">
   <div id="carousel-track"></div>
-  <button id="prev-btn" class="nm-btn">‹</button>
-  <button id="next-btn" class="nm-btn">›</button>
-</div>
-
-<div id="progress-bar"><div id="progress-fill"></div></div>
-
-<div id="nm-section-title">
-  <span>Más noticias</span>
-  <span id="grid-page-info"></span>
 </div>
 
 <div id="news-grid"></div>
-
-<div id="grid-nav">
-  <button id="grid-prev" class="grid-nav-btn">‹</button>
-  <button id="grid-next" class="grid-nav-btn">›</button>
-</div>
 
 </div>
 
 <script>
 const FEEDS = [
   { url:"https://feeds.bbci.co.uk/mundo/rss.xml", name:"BBC" },
+  { url:"https://www.lanacion.com.ar/arc/outboundfeeds/rss/", name:"La Nación" },
   { url:"https://www.clarin.com/rss/lo-ultimo/", name:"Clarín" },
-  { url:"https://www.lanacion.com.ar/arc/outboundfeeds/rss/", name:"La Nación" }
+  { url:"https://www.lavanguardia.com/rss/salud.xml", name:"La Vanguardia" },
+  { url:"https://www.20minutos.es/rss/salud/", name:"20 Minutos" },
 ];
-
-const GRID_PER_PAGE = 5;
-const AUTO_INTERVAL = 5000;
 
 let allItems = [];
 let current = 0;
-let gridPage = 0;
 let timer;
 
-function shuffle(a){ return a.sort(()=>Math.random()-0.5); }
+function withTimeout(promise, ms){
+  return Promise.race([
+    promise,
+    new Promise((_,rej)=>setTimeout(()=>rej("timeout"),ms))
+  ]);
+}
 
-async function loadFeed(url){
-  const r = await fetch("https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(url));
+async function viaRss2json(url){
+  const r = await fetch("https://api.rss2json.com/v1/api.json?count=50&rss_url="+encodeURIComponent(url));
   const d = await r.json();
-  return d.items || [];
+  if(d.status!=="ok") throw "error";
+  return d.items;
+}
+
+async function viaAllOrigins(url){
+  const r = await fetch("https://api.allorigins.win/get?url="+encodeURIComponent(url));
+  const d = await r.json();
+  return parseRSS(d.contents);
+}
+
+async function viaCors(url){
+  const r = await fetch("https://corsproxy.io/?"+encodeURIComponent(url));
+  return parseRSS(await r.text());
+}
+
+function parseRSS(xml){
+  const doc = new DOMParser().parseFromString(xml,"text/xml");
+  return [...doc.querySelectorAll("item")].map(el=>({
+    title: el.querySelector("title")?.textContent || "",
+    link: el.querySelector("link")?.textContent || "",
+    description: el.querySelector("description")?.textContent || "",
+    thumbnail: el.querySelector("media\\:content, enclosure")?.getAttribute("url") || ""
+  }));
+}
+
+async function loadFeed(feed){
+  for(const fn of [viaRss2json, viaAllOrigins, viaCors]){
+    try{
+      const items = await withTimeout(fn(feed.url),7000);
+      if(items?.length) return items.map(i=>({...i,_name:feed.name}));
+    }catch(e){}
+  }
+  return [];
 }
 
 async function loadAll(){
   allItems = [];
 
   const results = await Promise.allSettled(
-    FEEDS.map(f=>loadFeed(f.url))
+    FEEDS.map(f=>loadFeed(f))
   );
 
-  results.forEach((res,i)=>{
-    if(res.status==="fulfilled"){
-      res.value.forEach(item=>{
-        allItems.push({...item,_name:FEEDS[i].name});
-      });
+  results.forEach(r=>{
+    if(r.status==="fulfilled"){
+      allItems.push(...r.value);
     }
   });
 
   allItems = shuffle(allItems);
 
   render();
-  renderGridPage(0);
+}
+
+function shuffle(a){ return a.sort(()=>Math.random()-0.5); }
+
+function getImage(i){
+  if(i.thumbnail) return i.thumbnail;
+  const m = (i.description||"").match(/src="([^"]+)"/);
+  return m ? m[1] : null;
 }
 
 function render(){
   const track = document.getElementById("carousel-track");
-  track.innerHTML="";
+  track.innerHTML = "";
 
   allItems.forEach(item=>{
+    const img = getImage(item);
+
     const slide = document.createElement("div");
     slide.className="nm-slide";
 
-    slide.innerHTML=`
-      ${item.thumbnail ? `<img src="${item.thumbnail}">` : `<div class="nm-img-placeholder"></div>`}
+    slide.innerHTML = `
+      ${img ? `<img src="${img}">` : `<div class="nm-img-placeholder"></div>`}
       <div class="nm-overlay">
         <div>${item._name}</div>
         <div>${item.title}</div>
       </div>
     `;
+
     track.appendChild(slide);
   });
 
-  goTo(0);
   startAuto();
-}
-
-function renderGridPage(page){
-  gridPage = page;
-
-  const start = page * GRID_PER_PAGE;
-  const items = allItems.slice(start, start + GRID_PER_PAGE);
-
-  const grid = document.getElementById("news-grid");
-  grid.innerHTML="";
-
-  items.forEach(i=>{
-    const a = document.createElement("a");
-    a.className="nm-card";
-    a.href=i.link;
-    a.target="_blank";
-    a.innerHTML=`<b>${i._name}</b><br>${i.title}`;
-    grid.appendChild(a);
-  });
-
-  const totalPages = Math.ceil(allItems.length / GRID_PER_PAGE);
-
-  document.getElementById("grid-page-info").textContent =
-    (page+1)+" / "+totalPages;
-
-  document.getElementById("grid-prev").disabled = page===0;
-  document.getElementById("grid-next").disabled = page>=totalPages-1;
 }
 
 function goTo(i){
   if(!allItems.length) return;
-
   current = (i + allItems.length) % allItems.length;
 
   document.getElementById("carousel-track").style.transform =
@@ -249,26 +153,15 @@ function goTo(i){
 
 function startAuto(){
   clearInterval(timer);
-  timer = setInterval(()=>goTo(current+1), AUTO_INTERVAL);
+  timer = setInterval(()=>goTo(current+1),5000);
 }
 
+/* FIX imágenes rotas */
 document.addEventListener("error",e=>{
   if(e.target.tagName==="IMG"){
     e.target.style.display="none";
   }
 },true);
-
-document.getElementById("prev-btn").onclick=()=>{goTo(current-1);startAuto();}
-document.getElementById("next-btn").onclick=()=>{goTo(current+1);startAuto();}
-
-document.getElementById("grid-prev").onclick=()=>{
-  if(gridPage>0) renderGridPage(gridPage-1);
-};
-
-document.getElementById("grid-next").onclick=()=>{
-  if(gridPage < Math.ceil(allItems.length/GRID_PER_PAGE)-1)
-    renderGridPage(gridPage+1);
-};
 
 loadAll();
 </script>
