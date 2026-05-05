@@ -1,194 +1,166 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Noticias Laboratorios Mar</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; background: #ffffff; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: Arial, sans-serif; background:#fff; }
 
-    /* ── Contenedor principal 1/3 de la hoja ── */
-    #notimar-root {
-      width: 33.333%;
-      min-width: 260px;
-      max-width: 420px;
-    }
+#notimar-root {
+  width: 44.444%;
+  min-width: 300px;
+  max-width: 560px;
+}
 
-    /* ── Título superior ── */
-    #nm-header {
-      background: #1a2a4a;
-      padding: 5px 12px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    #nm-header span {
-      font-size: 10px;
-      color: #8aa8cc;
-      letter-spacing: 0.3px;
-    }
-    #nm-header strong {
-      color: #ffffff;
-      font-weight: 700;
-    }
+#nm-header {
+  background: #1a2a4a;
+  padding: 7px 12px 6px;
+}
+#nm-header .nm-title-main {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  display: block;
+  line-height: 1.2;
+}
+#nm-header .nm-title-sub {
+  font-size: 10px;
+  color: #8aa8cc;
+  letter-spacing: 0.3px;
+  display: block;
+  margin-top: 1px;
+}
 
-    /* ── Carrusel ── */
-    #carousel-area {
-      position: relative;
-      overflow: hidden;
-      background: #1a2a4a;
-    }
-    #carousel-track {
-      display: flex;
-      transition: transform 0.45s cubic-bezier(.4,0,.2,1);
-    }
-    .nm-slide {
-      min-width: 100%;
-      position: relative;
-      height: 200px;
-      text-decoration: none;
-      display: block;
-      flex-shrink: 0;
-    }
-    .nm-slide img {
-      width: 100%; height: 100%;
-      object-fit: cover; object-position: center top;
-      display: block;
-    }
-    .nm-img-placeholder {
-      width: 100%; height: 100%;
-      background: linear-gradient(135deg, #1a2a4a, #2c3e6b);
-    }
-    .nm-overlay {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      background: linear-gradient(transparent, rgba(5,15,40,0.93));
-      padding: 30px 12px 12px;
-    }
-    .nm-source {
-      font-size: 9px; color: #e63946;
-      font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.5px; margin-bottom: 4px;
-    }
-    .nm-title {
-      font-size: 12px; font-weight: 700;
-      color: #ffffff; line-height: 1.4;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .nm-counter {
-      position: absolute; top: 7px; right: 9px;
-      background: rgba(5,15,40,0.65);
-      color: #fff; font-size: 9px;
-      padding: 1px 7px; border-radius: 10px; z-index: 10;
-    }
-    .nm-btn {
-      position: absolute; top: 50%; transform: translateY(-50%);
-      background: rgba(5,15,40,0.5);
-      border: none; color: #fff;
-      width: 28px; height: 28px; border-radius: 50%;
-      cursor: pointer; font-size: 18px; z-index: 10;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .nm-btn:hover { background: rgba(5,15,40,0.85); }
-    #prev-btn { left: 7px; }
-    #next-btn { right: 7px; }
+#carousel-area {
+  position: relative;
+  overflow: hidden;
+  background: #1a2a4a;
+  height: 200px;
+}
+#carousel-track {
+  display: flex;
+  height: 100%;
+  transition: transform 0.45s cubic-bezier(.4,0,.2,1);
+  will-change: transform;
+}
+.nm-slide {
+  min-width: 100%;
+  width: 100%;
+  flex-shrink: 0;
+  position: relative;
+  height: 200px;
+  text-decoration: none;
+  display: block;
+  overflow: hidden;
+}
+.nm-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  pointer-events: none;
+}
+.nm-img-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1a2a4a, #2c3e6b);
+}
+.nm-overlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(5,15,40,0.93));
+  padding: 30px 12px 12px;
+}
+.nm-source {
+  font-size: 9px; color: #e63946;
+  font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.5px; margin-bottom: 4px;
+}
+.nm-title-slide {
+  font-size: 12px; font-weight: 700;
+  color: #ffffff; line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.nm-counter {
+  position: absolute; top: 7px; right: 9px;
+  background: rgba(5,15,40,0.65);
+  color: #fff; font-size: 9px;
+  padding: 1px 7px; border-radius: 10px; z-index: 10;
+}
+.nm-btn {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  background: rgba(5,15,40,0.5);
+  border: none; color: #fff;
+  width: 28px; height: 28px; border-radius: 50%;
+  cursor: pointer; font-size: 18px; z-index: 10;
+  display: flex; align-items: center; justify-content: center;
+  line-height: 1;
+}
+.nm-btn:hover { background: rgba(5,15,40,0.85); }
+#prev-btn { left: 7px; }
+#next-btn { right: 7px; }
 
-    #progress-bar { height: 2px; background: #1a2a4a; }
-    #progress-fill { height: 100%; background: #e63946; width: 0%; }
+#progress-bar { height: 2px; background: #1a2a4a; }
+#progress-fill { height: 100%; background: #e63946; width: 0%; transition: none; }
 
-    /* ── Separador con título ── */
-    #nm-section-title {
-      background: #f4f4f4;
-      border-top: 2px solid #e63946;
-      border-bottom: 1px solid #ddd;
-      padding: 5px 12px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    #nm-section-title span {
-      font-size: 9px; font-weight: 700; color: #888;
-      text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    #grid-page-info {
-      font-size: 9px; color: #aaa;
-    }
+#nm-section-title {
+  background: #f4f4f4;
+  border-top: 2px solid #e63946;
+  border-bottom: 1px solid #ddd;
+  padding: 5px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+#nm-section-title span { font-size: 9px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+#grid-page-info { font-size: 9px; color: #aaa; }
 
-    /* ── Grid: 1 columna, 5 filas ── */
-    #news-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-      background: #ddd;
-    }
-    .nm-card {
-      background: #fff;
-      padding: 8px 12px;
-      text-decoration: none;
-      display: flex;
-      align-items: flex-start;
-      gap: 9px;
-      min-height: 54px;
-    }
-    .nm-card:hover .nm-card-title { color: #e63946; }
-    .nm-card-bullet {
-      flex-shrink: 0;
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: #e63946;
-      margin-top: 5px;
-    }
-    .nm-card-body { flex: 1; min-width: 0; }
-    .nm-card-source {
-      font-size: 8px; color: #e63946; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px;
-    }
-    .nm-card-title {
-      font-size: 11px; color: #222; line-height: 1.4;
-      display: -webkit-box; -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical; overflow: hidden;
-      transition: color 0.15s;
-    }
+#news-grid { display: flex; flex-direction: column; gap: 1px; background: #ddd; }
+.nm-card {
+  background: #fff; padding: 8px 12px;
+  text-decoration: none; display: flex;
+  align-items: flex-start; gap: 9px; min-height: 54px;
+}
+.nm-card:hover .nm-card-title { color: #e63946; }
+.nm-card-bullet { flex-shrink:0; width:5px; height:5px; border-radius:50%; background:#e63946; margin-top:5px; }
+.nm-card-body { flex:1; min-width:0; }
+.nm-card-source { font-size:8px; color:#e63946; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:2px; }
+.nm-card-title { font-size:11px; color:#222; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; transition:color 0.15s; }
 
-    /* ── Paginación ── */
-    #grid-nav {
-      display: flex; align-items: center; justify-content: flex-end;
-      gap: 5px; padding: 5px 10px;
-      background: #f4f4f4;
-      border-top: 1px solid #ddd;
-    }
-    .grid-nav-btn {
-      background: #1a2a4a; border: none; color: #fff;
-      width: 22px; height: 22px; border-radius: 50%;
-      cursor: pointer; font-size: 14px;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.2s;
-    }
-    .grid-nav-btn:hover { background: #e63946; }
-    .grid-nav-btn:disabled { background: #ccc; cursor: default; }
+#grid-nav {
+  display:flex; align-items:center; justify-content:flex-end;
+  gap:5px; padding:5px 10px;
+  background:#f4f4f4; border-top:1px solid #ddd;
+}
+.grid-nav-btn {
+  background:#1a2a4a; border:none; color:#fff;
+  width:22px; height:22px; border-radius:50%;
+  cursor:pointer; font-size:14px;
+  display:flex; align-items:center; justify-content:center;
+  transition:background 0.2s;
+}
+.grid-nav-btn:hover { background:#e63946; }
+.grid-nav-btn:disabled { background:#ccc; cursor:default; }
 
-    /* ── Cargando ── */
-    #main-loading {
-      height: 200px;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 8px; color: #8899bb; font-size: 12px;
-    }
-    #loading-detail { font-size: 9px; color: #4a6a9a; }
-  </style>
+#main-loading {
+  height:200px; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:8px; color:#8899bb; font-size:12px;
+}
+#loading-detail { font-size:9px; color:#4a6a9a; }
+</style>
 </head>
 <body>
-
 <div id="notimar-root">
 
-  <!-- Título -->
   <div id="nm-header">
-    <span><strong>Noticias Mar</strong> — destacadas sobre actualidad, medicina, salud, y más...</span>
+    <span class="nm-title-main">Noticias Mar</span>
+    <span class="nm-title-sub">actualidad, medicina, salud y más...</span>
   </div>
 
-  <!-- Carrusel -->
   <div id="carousel-area">
     <div id="main-loading">
       <span>Cargando noticias...</span>
@@ -201,7 +173,6 @@
   </div>
   <div id="progress-bar"><div id="progress-fill"></div></div>
 
-  <!-- Noticias secundarias -->
   <div id="nm-section-title">
     <span>Más noticias</span>
     <span id="grid-page-info"></span>
@@ -219,19 +190,23 @@ const FEEDS = [
   { url: "https://feeds.bbci.co.uk/mundo/rss.xml",             name: "BBC Mundo"     },
   { url: "https://www.lanacion.com.ar/arc/outboundfeeds/rss/", name: "La Nación"     },
   { url: "https://www.clarin.com/rss/lo-ultimo/",              name: "Clarín"        },
-  { url: "https://www.america-retail.com/feed/",               name: "América Retail" },
   { url: "https://www.lavanguardia.com/rss/salud.xml",         name: "La Vanguardia" },
   { url: "https://www.20minutos.es/rss/salud/",                name: "20 Minutos"    },
 ];
 
 const AUTO_INTERVAL = 5000;
 const GRID_PER_PAGE = 5;
+const FETCH_TIMEOUT = 7000;
 
 let allItems = [], current = 0, total = 0, timer = null, gridPage = 0;
+let rendered = false;
 
-/* ── Proxies ── */
+function withTimeout(promise, ms) {
+  return Promise.race([promise, new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), ms))]);
+}
+
 async function viaRss2json(feedUrl) {
-  const r = await fetch("https://api.rss2json.com/v1/api.json?count=50&rss_url=" + encodeURIComponent(feedUrl));
+  const r = await fetch("https://api.rss2json.com/v1/api.json?count=20&rss_url=" + encodeURIComponent(feedUrl));
   const d = await r.json();
   if (d.status !== "ok" || !d.items?.length) throw new Error("no items");
   return d.items.map(i => ({ title: i.title||"", link: i.link||"", description: i.description||"", thumbnail: i.thumbnail||"", enclosure: i.enclosure||null }));
@@ -268,7 +243,7 @@ function parseRSS(xml) {
 async function loadFeed(feed) {
   for (const proxy of [viaRss2json, viaAllOrigins, viaCorsProxy]) {
     try {
-      const items = await proxy(feed.url);
+      const items = await withTimeout(proxy(feed.url), FETCH_TIMEOUT);
       if (items.length) return items.map(i => ({ ...i, _name: feed.name }));
     } catch(_) {}
   }
@@ -282,29 +257,40 @@ function getImage(item) {
   return m ? m[1] : null;
 }
 
-/* ── Carga ── */
 async function loadAll() {
+  rendered = false;
   document.getElementById("loading-detail").textContent = "(consultando " + FEEDS.length + " fuentes...)";
-  const results = await Promise.all(FEEDS.map(loadFeed));
-  let merged = [];
-  results.forEach(r => { merged = merged.concat(r); });
-  for (let i = merged.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [merged[i], merged[j]] = [merged[j], merged[i]];
+
+  const promises = FEEDS.map(feed =>
+    loadFeed(feed).then(items => {
+      if (items.length && !rendered) {
+        allItems = shuffle([...allItems, ...items]);
+        rendered = true;
+        render();
+      } else if (items.length) {
+        allItems = shuffle([...allItems, ...items]);
+        renderGridPage(gridPage);
+      }
+    })
+  );
+
+  await Promise.allSettled(promises);
+
+  if (!rendered) {
+    document.getElementById("loading-detail").textContent = "No se pudieron cargar noticias.";
   }
-  allItems = merged;
-  if (!allItems.length) {
-    document.getElementById("loading-detail").textContent = "No se pudieron cargar. Reintentando...";
-    return;
-  }
-  render();
 }
 
-/* ── Render ── */
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 function render() {
   total = allItems.length;
-
-  // Carrusel
   const track = document.getElementById("carousel-track");
   track.innerHTML = "";
   allItems.forEach(function(item) {
@@ -318,7 +304,7 @@ function render() {
     a.innerHTML = imgHtml +
       '<div class="nm-overlay">' +
         '<div class="nm-source">' + item._name + '</div>' +
-        '<div class="nm-title">' + item.title + '</div>' +
+        '<div class="nm-title-slide">' + item.title + '</div>' +
       '</div>';
     track.appendChild(a);
   });
@@ -330,8 +316,6 @@ function render() {
   document.getElementById("counter").style.display = "block";
   goTo(0);
   startAuto();
-
-  // Grid
   renderGridPage(0);
 }
 
@@ -339,7 +323,6 @@ function renderGridPage(page) {
   gridPage = page;
   const totalPages = Math.ceil(allItems.length / GRID_PER_PAGE);
   const pageItems = allItems.slice(page * GRID_PER_PAGE, page * GRID_PER_PAGE + GRID_PER_PAGE);
-
   const grid = document.getElementById("news-grid");
   grid.innerHTML = "";
   pageItems.forEach(function(item) {
@@ -354,24 +337,27 @@ function renderGridPage(page) {
       '</div>';
     grid.appendChild(a);
   });
-
-  document.getElementById("grid-page-info").textContent = (page + 1) + " / " + totalPages;
+  document.getElementById("grid-page-info").textContent = (page + 1) + " / " + (totalPages||1);
   document.getElementById("grid-prev").disabled = (page === 0);
   document.getElementById("grid-next").disabled = (page >= totalPages - 1);
 }
 
-/* ── Navegación carrusel ── */
 function goTo(idx) {
+  total = allItems.length;
   current = (idx + total) % total;
   document.getElementById("carousel-track").style.transform = "translateX(" + (-current * 100) + "%)";
   document.getElementById("counter").textContent = (current + 1) + " / " + total;
   var fill = document.getElementById("progress-fill");
-  fill.style.transition = "none"; fill.style.width = "0%";
+  fill.style.transition = "none";
+  fill.style.width = "0%";
   requestAnimationFrame(function() {
-    fill.style.transition = "width " + AUTO_INTERVAL + "ms linear";
-    fill.style.width = "100%";
+    requestAnimationFrame(function() {
+      fill.style.transition = "width " + AUTO_INTERVAL + "ms linear";
+      fill.style.width = "100%";
+    });
   });
 }
+
 function startAuto() {
   clearInterval(timer);
   timer = setInterval(function() { goTo(current + 1); }, AUTO_INTERVAL);
@@ -381,17 +367,13 @@ document.getElementById("prev-btn").addEventListener("click", function() { goTo(
 document.getElementById("next-btn").addEventListener("click", function() { goTo(current + 1); startAuto(); });
 document.getElementById("carousel-area").addEventListener("mouseenter", function() { clearInterval(timer); });
 document.getElementById("carousel-area").addEventListener("mouseleave", function() { startAuto(); });
-
-/* ── Navegación grid ── */
 document.getElementById("grid-prev").addEventListener("click", function() { if (gridPage > 0) renderGridPage(gridPage - 1); });
 document.getElementById("grid-next").addEventListener("click", function() {
   if (gridPage < Math.ceil(allItems.length / GRID_PER_PAGE) - 1) renderGridPage(gridPage + 1);
 });
 
-/* ── Inicio ── */
 loadAll();
 setInterval(loadAll, 10 * 60 * 1000);
 </script>
-
 </body>
 </html>
