@@ -7,10 +7,9 @@
 * { margin:0; padding:0; box-sizing:border-box; }
 body { font-family: Arial, sans-serif; background:#fff; }
 
+/* ── contenedor principal: ancho completo, responsivo ── */
 #notimar-root {
-  width: 44.444%;
-  min-width: 300px;
-  max-width: 560px;
+  width: 100%;
 }
 
 #nm-header {
@@ -122,13 +121,24 @@ body { font-family: Arial, sans-serif; background:#fff; }
 .nm-card {
   background: #fff; padding: 8px 12px;
   text-decoration: none; display: flex;
-  align-items: flex-start; gap: 9px; min-height: 54px;
+  align-items: flex-start; gap: 9px;
+  /* sin min-height fijo para que el alto lo defina el contenido */
 }
 .nm-card:hover .nm-card-title { color: #e63946; }
 .nm-card-bullet { flex-shrink:0; width:5px; height:5px; border-radius:50%; background:#e63946; margin-top:5px; }
 .nm-card-body { flex:1; min-width:0; }
 .nm-card-source { font-size:8px; color:#e63946; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:2px; }
-.nm-card-title { font-size:11px; color:#222; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; transition:color 0.15s; }
+
+/* ── texto completo, sin corte ── */
+.nm-card-title {
+  font-size: 11px;
+  color: #222;
+  line-height: 1.4;
+  white-space: normal;       /* permite saltos de línea */
+  overflow: visible;         /* nada se oculta */
+  display: block;            /* comportamiento de bloque normal */
+  transition: color 0.15s;
+}
 
 #grid-nav {
   display:flex; align-items:center; justify-content:flex-end;
@@ -194,22 +204,33 @@ const FEEDS = [
   { url: "https://www.20minutos.es/rss/salud/",                name: "20 Minutos"    },
 ];
 
-const AUTO_INTERVAL = 5000;
-const GRID_PER_PAGE = 5;
-const FETCH_TIMEOUT = 7000;
+const AUTO_INTERVAL  = 5000;
+const GRID_PER_PAGE  = 5;
+const FETCH_TIMEOUT  = 7000;
 
-let allItems = [], current = 0, total = 0, timer = null, gridPage = 0;
+let allItems = [], carouselItems = [], current = 0, total = 0, timer = null, gridPage = 0;
 let rendered = false;
 
+/* ── utilidades ── */
 function withTimeout(promise, ms) {
-  return Promise.race([promise, new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), ms))]);
+  return Promise.race([
+    promise,
+    new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), ms))
+  ]);
 }
 
+/* ── proxies de RSS ── */
 async function viaRss2json(feedUrl) {
   const r = await fetch("https://api.rss2json.com/v1/api.json?count=20&rss_url=" + encodeURIComponent(feedUrl));
   const d = await r.json();
   if (d.status !== "ok" || !d.items?.length) throw new Error("no items");
-  return d.items.map(i => ({ title: i.title||"", link: i.link||"", description: i.description||"", thumbnail: i.thumbnail||"", enclosure: i.enclosure||null }));
+  return d.items.map(i => ({
+    title:       i.title       || "",
+    link:        i.link        || "",
+    description: i.description || "",
+    thumbnail:   i.thumbnail   || "",
+    enclosure:   i.enclosure   || null,
+  }));
 }
 
 async function viaAllOrigins(feedUrl) {
@@ -250,26 +271,39 @@ async function loadFeed(feed) {
   return [];
 }
 
+/* ── extracción de imagen ──
+   Orden de prioridad:
+   1. thumbnail del RSS
+   2. URL del enclosure
+   3. Primera <img> dentro de la descripción
+   Si ninguna tiene protocolo http/https se descarta el item del carrusel.
+*/
 function getImage(item) {
-  if (item.thumbnail && /^https?:/.test(item.thumbnail)) return item.thumbnail;
+  if (item.thumbnail     && /^https?:/.test(item.thumbnail))       return item.thumbnail;
   if (item.enclosure?.link && /^https?:/.test(item.enclosure.link)) return item.enclosure.link;
-  const m = (item.description||"").match(/src=["']([^"']+\.(jpe?g|png|webp)[^"']*)/i);
-  return m ? m[1] : null;
+  const m = (item.description || "").match(/src=["']([^"']+\.(jpe?g|png|webp)[^"']*)/i);
+  if (m && /^https?:/.test(m[1]))                                   return m[1];
+  return null;
 }
 
+/* ── carga principal ── */
 async function loadAll() {
   rendered = false;
-  document.getElementById("loading-detail").textContent = "(consultando " + FEEDS.length + " fuentes...)";
+  document.getElementById("loading-detail").textContent =
+    "(consultando " + FEEDS.length + " fuentes...)";
 
   const promises = FEEDS.map(feed =>
     loadFeed(feed).then(items => {
-      if (items.length && !rendered) {
-        allItems = shuffle([...allItems, ...items]);
+      if (!items.length) return;
+      allItems = shuffle([...allItems, ...items]);
+      // solo pasan al carrusel los items con imagen válida
+      carouselItems = allItems.filter(i => getImage(i) !== null);
+      if (!rendered && carouselItems.length) {
         rendered = true;
         render();
-      } else if (items.length) {
-        allItems = shuffle([...allItems, ...items]);
+      } else {
         renderGridPage(gridPage);
+        if (carouselItems.length) rebuildCarouselSlides();
       }
     })
   );
@@ -277,7 +311,8 @@ async function loadAll() {
   await Promise.allSettled(promises);
 
   if (!rendered) {
-    document.getElementById("loading-detail").textContent = "No se pudieron cargar noticias.";
+    document.getElementById("loading-detail").textContent =
+      "No se pudieron cargar noticias.";
   }
 }
 
@@ -289,71 +324,89 @@ function shuffle(arr) {
   return arr;
 }
 
-function render() {
-  total = allItems.length;
+/* ── construye los slides del carrusel (sólo items con imagen) ── */
+function rebuildCarouselSlides() {
   const track = document.getElementById("carousel-track");
   track.innerHTML = "";
-  allItems.forEach(function(item) {
-    const img = getImage(item);
-    const a = document.createElement("a");
+  carouselItems.forEach(function(item) {
+    const img = getImage(item);          // garantizado no-null aquí
+    const a   = document.createElement("a");
     a.className = "nm-slide";
-    a.href = item.link; a.target = "_blank"; a.rel = "noopener noreferrer";
-    const imgHtml = img
-      ? '<img src="' + img + '" alt="" loading="lazy" onerror="this.outerHTML=\'<div class=nm-img-placeholder></div>\'">'
-      : '<div class="nm-img-placeholder"></div>';
-    a.innerHTML = imgHtml +
+    a.href      = item.link;
+    a.target    = "_blank";
+    a.rel       = "noopener noreferrer";
+    a.innerHTML =
+      '<img src="' + img + '" alt="" loading="lazy" ' +
+      'onerror="this.style.display=\'none\'">' +
       '<div class="nm-overlay">' +
-        '<div class="nm-source">' + item._name + '</div>' +
+        '<div class="nm-source">'      + item._name + '</div>' +
         '<div class="nm-title-slide">' + item.title + '</div>' +
       '</div>';
     track.appendChild(a);
   });
+  total   = carouselItems.length;
+  current = Math.min(current, total - 1);
+  goTo(current);
+}
 
-  document.getElementById("main-loading").style.display = "none";
-  track.style.display = "flex";
-  document.getElementById("prev-btn").style.display = "flex";
-  document.getElementById("next-btn").style.display = "flex";
-  document.getElementById("counter").style.display = "block";
+function render() {
+  rebuildCarouselSlides();
+
+  document.getElementById("main-loading").style.display   = "none";
+  document.getElementById("carousel-track").style.display = "flex";
+  document.getElementById("prev-btn").style.display       = "flex";
+  document.getElementById("next-btn").style.display       = "flex";
+  document.getElementById("counter").style.display        = "block";
+
   goTo(0);
   startAuto();
   renderGridPage(0);
 }
 
+/* ── grid de noticias (todas, con o sin imagen) ── */
 function renderGridPage(page) {
   gridPage = page;
   const totalPages = Math.ceil(allItems.length / GRID_PER_PAGE);
-  const pageItems = allItems.slice(page * GRID_PER_PAGE, page * GRID_PER_PAGE + GRID_PER_PAGE);
-  const grid = document.getElementById("news-grid");
-  grid.innerHTML = "";
+  const pageItems  = allItems.slice(page * GRID_PER_PAGE, page * GRID_PER_PAGE + GRID_PER_PAGE);
+  const grid       = document.getElementById("news-grid");
+  grid.innerHTML   = "";
   pageItems.forEach(function(item) {
     const a = document.createElement("a");
     a.className = "nm-card";
-    a.href = item.link; a.target = "_blank"; a.rel = "noopener noreferrer";
+    a.href      = item.link;
+    a.target    = "_blank";
+    a.rel       = "noopener noreferrer";
     a.innerHTML =
       '<div class="nm-card-bullet"></div>' +
       '<div class="nm-card-body">' +
-        '<div class="nm-card-source">' + item._name + '</div>' +
-        '<div class="nm-card-title">' + item.title + '</div>' +
+        '<div class="nm-card-source">' + item._name  + '</div>' +
+        '<div class="nm-card-title">'  + item.title  + '</div>' +
       '</div>';
     grid.appendChild(a);
   });
-  document.getElementById("grid-page-info").textContent = (page + 1) + " / " + (totalPages||1);
+  document.getElementById("grid-page-info").textContent =
+    (page + 1) + " / " + (totalPages || 1);
   document.getElementById("grid-prev").disabled = (page === 0);
   document.getElementById("grid-next").disabled = (page >= totalPages - 1);
 }
 
+/* ── navegación del carrusel ── */
 function goTo(idx) {
-  total = allItems.length;
+  total   = carouselItems.length;
+  if (!total) return;
   current = (idx + total) % total;
-  document.getElementById("carousel-track").style.transform = "translateX(" + (-current * 100) + "%)";
-  document.getElementById("counter").textContent = (current + 1) + " / " + total;
+  document.getElementById("carousel-track").style.transform =
+    "translateX(" + (-current * 100) + "%)";
+  document.getElementById("counter").textContent =
+    (current + 1) + " / " + total;
+
   var fill = document.getElementById("progress-fill");
   fill.style.transition = "none";
-  fill.style.width = "0%";
+  fill.style.width      = "0%";
   requestAnimationFrame(function() {
     requestAnimationFrame(function() {
       fill.style.transition = "width " + AUTO_INTERVAL + "ms linear";
-      fill.style.width = "100%";
+      fill.style.width      = "100%";
     });
   });
 }
@@ -363,8 +416,9 @@ function startAuto() {
   timer = setInterval(function() { goTo(current + 1); }, AUTO_INTERVAL);
 }
 
-document.getElementById("prev-btn").addEventListener("click", function() { goTo(current - 1); startAuto(); });
-document.getElementById("next-btn").addEventListener("click", function() { goTo(current + 1); startAuto(); });
+/* ── eventos ── */
+document.getElementById("prev-btn").addEventListener("click",  function() { goTo(current - 1); startAuto(); });
+document.getElementById("next-btn").addEventListener("click",  function() { goTo(current + 1); startAuto(); });
 document.getElementById("carousel-area").addEventListener("mouseenter", function() { clearInterval(timer); });
 document.getElementById("carousel-area").addEventListener("mouseleave", function() { startAuto(); });
 document.getElementById("grid-prev").addEventListener("click", function() { if (gridPage > 0) renderGridPage(gridPage - 1); });
