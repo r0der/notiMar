@@ -142,12 +142,13 @@ body { font-family: Arial, sans-serif; background:#fff; }
   transition: color 0.15s;
 }
 
-/* ── botones de paginación: posición absoluta fija respecto al root ── */
+/* ── botones de paginación: top fijo en píxeles, inamovibles ── */
 #grid-nav {
-  position: absolute;   /* relativo a #notimar-root */
+  position: absolute;
+  top: 410px;           /* fijo: no se mueve nunca */
   left: 0;
   right: 0;
-  height: 0;            /* no ocupa espacio en el flujo */
+  height: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -162,7 +163,7 @@ body { font-family: Arial, sans-serif; background:#fff; }
   width: 26px; height: 26px; border-radius: 50%;
   cursor: pointer; font-size: 16px;
   display: flex; align-items: center; justify-content: center;
-  transform: translateY(-50%);   /* centrado vertical sobre la línea */
+  transform: translateY(-50%);
   transition: background 0.2s;
   backdrop-filter: blur(2px);
 }
@@ -415,7 +416,6 @@ function renderGridPage(page) {
     (page + 1) + " / " + (totalPages || 1);
   document.getElementById("grid-prev").disabled = (page === 0);
   document.getElementById("grid-next").disabled = (page >= totalPages - 1);
-  positionGridNav();
 }
 
 function goTo(idx) {
@@ -454,41 +454,6 @@ document.getElementById("grid-next").addEventListener("click", function() {
 
 loadAll();
 setInterval(loadAll, 10 * 60 * 1000);
-
-/* ── posición fija de los botones de paginación ──
-   Se calcula UNA VEZ respecto al #nm-section-title (altura fija).
-   El #grid-nav está en position:absolute dentro de #notimar-root.
-   top = offsetTop del section-title + su altura completa + la mitad
-         del grid visible (3 items aprox). Lo dejamos a mitad del grid
-         usando la altura del #nm-section-title como ancla y sumando
-         un offset fijo hacia el interior del grid.
-*/
-function positionGridNav() {
-  var root    = document.getElementById("notimar-root");
-  var section = document.getElementById("nm-section-title");
-  var nav     = document.getElementById("grid-nav");
-  var grid    = document.getElementById("news-grid");
-  if (!root || !section || !nav) return;
-
-  var rootRect    = root.getBoundingClientRect();
-  var sectionRect = section.getBoundingClientRect();
-  var gridRect    = grid.getBoundingClientRect();
-
-  /* top del section-title relativo al root */
-  var sectionTop = sectionRect.top - rootRect.top;
-  /* altura del section-title */
-  var sectionH   = sectionRect.height;
-  /* altura actual del grid */
-  var gridH      = gridRect.height;
-
-  /* los botones van exactamente en el centro del grid */
-  var navTop = sectionTop + sectionH + gridH / 2;
-
-  nav.style.top = navTop + "px";
-}
-
-/* ejecutar al renderizar y también si la ventana cambia de tamaño */
-window.addEventListener("resize", positionGridNav);
 </script>
 </body>
 </html>
