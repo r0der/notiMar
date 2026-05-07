@@ -117,12 +117,16 @@ body { font-family: Arial, sans-serif; background:#fff; }
 #nm-section-title span { font-size: 9px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
 #grid-page-info { font-size: 9px; color: #aaa; }
 
+/* ── contenedor del grid con posición relativa para los botones flotantes ── */
+#grid-wrapper {
+  position: relative;
+}
+
 #news-grid { display: flex; flex-direction: column; gap: 1px; background: #ddd; }
 .nm-card {
   background: #fff; padding: 8px 12px;
   text-decoration: none; display: flex;
   align-items: flex-start; gap: 9px;
-  /* sin min-height fijo para que el alto lo defina el contenido */
 }
 .nm-card:hover .nm-card-title { color: #e63946; }
 .nm-card-bullet { flex-shrink:0; width:5px; height:5px; border-radius:50%; background:#e63946; margin-top:5px; }
@@ -134,26 +138,53 @@ body { font-family: Arial, sans-serif; background:#fff; }
   font-size: 11px;
   color: #222;
   line-height: 1.4;
-  white-space: normal;       /* permite saltos de línea */
-  overflow: visible;         /* nada se oculta */
-  display: block;            /* comportamiento de bloque normal */
+  white-space: normal;
+  overflow: visible;
+  display: block;
   transition: color 0.15s;
 }
 
+/* ── botones flotantes sobre el grid, centrados verticalmente ── */
 #grid-nav {
-  display:flex; align-items:center; justify-content:flex-end;
-  gap:5px; padding:5px 10px;
-  background:#f4f4f4; border-top:1px solid #ddd;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+  pointer-events: none; /* el área no bloquea clics en las noticias */
+  z-index: 20;
 }
 .grid-nav-btn {
-  background:#1a2a4a; border:none; color:#fff;
-  width:22px; height:22px; border-radius:50%;
-  cursor:pointer; font-size:14px;
-  display:flex; align-items:center; justify-content:center;
-  transition:background 0.2s;
+  pointer-events: all; /* los botones sí reciben clics */
+  background: rgba(26, 42, 74, 0.45);
+  border: none; color: #fff;
+  width: 26px; height: 26px; border-radius: 50%;
+  cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+  backdrop-filter: blur(2px);
 }
-.grid-nav-btn:hover { background:#e63946; }
-.grid-nav-btn:disabled { background:#ccc; cursor:default; }
+.grid-nav-btn:hover { background: rgba(230, 57, 70, 0.75); }
+.grid-nav-btn:disabled { opacity: 0; pointer-events: none; }
+
+/* ── footer ── */
+#nm-footer {
+  background: #f0f0f0;
+  border-top: 1px solid #e0e0e0;
+  padding: 5px 12px;
+  text-align: right;
+}
+#nm-footer span {
+  font-size: 8px;
+  color: #bbb;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
 
 #main-loading {
   height:200px; display:flex; flex-direction:column;
@@ -187,10 +218,18 @@ body { font-family: Arial, sans-serif; background:#fff; }
     <span>Más noticias</span>
     <span id="grid-page-info"></span>
   </div>
-  <div id="news-grid"></div>
-  <div id="grid-nav">
-    <button class="grid-nav-btn" id="grid-prev">&#8249;</button>
-    <button class="grid-nav-btn" id="grid-next">&#8250;</button>
+
+  <!-- wrapper con posición relativa para anclar los botones flotantes -->
+  <div id="grid-wrapper">
+    <div id="news-grid"></div>
+    <div id="grid-nav">
+      <button class="grid-nav-btn" id="grid-prev">&#8249;</button>
+      <button class="grid-nav-btn" id="grid-next">&#8250;</button>
+    </div>
+  </div>
+
+  <div id="nm-footer">
+    <span>Laboratorios Mar</span>
   </div>
 
 </div>
@@ -271,13 +310,6 @@ async function loadFeed(feed) {
   return [];
 }
 
-/* ── extracción de imagen ──
-   Orden de prioridad:
-   1. thumbnail del RSS
-   2. URL del enclosure
-   3. Primera <img> dentro de la descripción
-   Si ninguna tiene protocolo http/https se descarta el item del carrusel.
-*/
 function getImage(item) {
   if (item.thumbnail     && /^https?:/.test(item.thumbnail))       return item.thumbnail;
   if (item.enclosure?.link && /^https?:/.test(item.enclosure.link)) return item.enclosure.link;
@@ -286,7 +318,6 @@ function getImage(item) {
   return null;
 }
 
-/* ── carga principal ── */
 async function loadAll() {
   rendered = false;
   document.getElementById("loading-detail").textContent =
@@ -296,7 +327,6 @@ async function loadAll() {
     loadFeed(feed).then(items => {
       if (!items.length) return;
       allItems = shuffle([...allItems, ...items]);
-      // solo pasan al carrusel los items con imagen válida
       carouselItems = allItems.filter(i => getImage(i) !== null);
       if (!rendered && carouselItems.length) {
         rendered = true;
@@ -324,12 +354,11 @@ function shuffle(arr) {
   return arr;
 }
 
-/* ── construye los slides del carrusel (sólo items con imagen) ── */
 function rebuildCarouselSlides() {
   const track = document.getElementById("carousel-track");
   track.innerHTML = "";
   carouselItems.forEach(function(item) {
-    const img = getImage(item);          // garantizado no-null aquí
+    const img = getImage(item);
     const a   = document.createElement("a");
     a.className = "nm-slide";
     a.href      = item.link;
@@ -363,7 +392,6 @@ function render() {
   renderGridPage(0);
 }
 
-/* ── grid de noticias (todas, con o sin imagen) ── */
 function renderGridPage(page) {
   gridPage = page;
   const totalPages = Math.ceil(allItems.length / GRID_PER_PAGE);
@@ -390,7 +418,6 @@ function renderGridPage(page) {
   document.getElementById("grid-next").disabled = (page >= totalPages - 1);
 }
 
-/* ── navegación del carrusel ── */
 function goTo(idx) {
   total   = carouselItems.length;
   if (!total) return;
@@ -416,7 +443,6 @@ function startAuto() {
   timer = setInterval(function() { goTo(current + 1); }, AUTO_INTERVAL);
 }
 
-/* ── eventos ── */
 document.getElementById("prev-btn").addEventListener("click",  function() { goTo(current - 1); startAuto(); });
 document.getElementById("next-btn").addEventListener("click",  function() { goTo(current + 1); startAuto(); });
 document.getElementById("carousel-area").addEventListener("mouseenter", function() { clearInterval(timer); });
