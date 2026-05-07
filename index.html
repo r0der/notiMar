@@ -321,7 +321,7 @@ function getImage(item) {
 async function loadAll() {
   rendered = false;
   document.getElementById("loading-detail").textContent =
-    "(consultando " + FEEDS.length + " fuentes...)";
+    "(consultando fuentes...)";
 
   const promises = FEEDS.map(feed =>
     loadFeed(feed).then(items => {
