@@ -175,7 +175,7 @@ body { font-family: Arial, sans-serif; background:#fff; }
   background: #f0f0f0;
   border-top: 1px solid #e0e0e0;
   padding: 5px 12px;
-  text-align: left;
+  text-align: right;
 }
 #nm-footer span {
   font-size: 8px;
@@ -229,19 +229,19 @@ body { font-family: Arial, sans-serif; background:#fff; }
   </div>
 
   <div id="nm-footer">
-    <span>“Estar informado mejora conversaciones, fortalece vínculos
-      y genera confianza.” - Laboratorios Mar</span>
+    <span>Laboratorios Mar</span>
   </div>
 
 </div>
 
 <script>
 const FEEDS = [
-  { url: "https://feeds.bbci.co.uk/mundo/rss.xml",             name: "BBC Mundo"     },
-  { url: "https://www.lanacion.com.ar/arc/outboundfeeds/rss/", name: "La Nación"     },
-  { url: "https://www.clarin.com/rss/lo-ultimo/",              name: "Clarín"        },
-  { url: "https://www.lavanguardia.com/rss/salud.xml",         name: "La Vanguardia" },
-  { url: "https://www.20minutos.es/rss/salud/",                name: "20 Minutos"    },
+  { url: "https://feeds.bbci.co.uk/mundo/rss.xml",                      name: "BBC Mundo"        },
+  { url: "https://www.lanacion.com.ar/arc/outboundfeeds/rss/",          name: "La Nación"        },
+  { url: "https://www.infosalus.com/rss/rss.php",                       name: "Infosalus"        },
+  { url: "https://www.redaccionmedica.com/rss/noticias.xml",            name: "Redacción Médica" },
+  { url: "https://www.lavanguardia.com/rss/salud.xml",                  name: "La Vanguardia"    },
+  { url: "https://www.20minutos.es/rss/salud/",                         name: "20 Minutos"       },
 ];
 
 const AUTO_INTERVAL  = 5000;
@@ -322,7 +322,7 @@ function getImage(item) {
 async function loadAll() {
   rendered = false;
   document.getElementById("loading-detail").textContent =
-    "(consultando fuentes...)";
+    "(consultando " + FEEDS.length + " fuentes...)";
 
   const promises = FEEDS.map(feed =>
     loadFeed(feed).then(items => {
